@@ -1,0 +1,103 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2212                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+para {#include        "../Parameters"}
+
+application     interFoam;
+
+startFrom       $para/startFrom;
+
+startTime       $para/startTime;
+
+stopAt          $para/stopAt;
+
+endTime         $para/endTime;
+
+deltaT          $para/deltaT;
+
+writeControl    adjustableRunTime;
+
+writeInterval   $para/writeInterval;
+
+purgeWrite      1;
+
+writeFormat     binary;
+
+writePrecision  6;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable yes;
+
+adjustTimeStep  $para/CFLAutoTimeStep;
+
+maxCo           $para/maxCo;
+maxAlphaCo      $para/maxAlphaCo;
+maxDeltaT       $para/maxDeltaT;
+
+functions
+{
+    forces
+    {
+        para {#include        "../Parameters"}
+        type            forces;
+        libs            ("libforces.so");
+        patches         (hull);
+        // rhoInf          $para/rho_water;
+        log             on;
+        writeControl    timeStep;
+        writeInterval   1;
+        CofR            $para/centreOfMass;
+    }
+
+    sixDoFRigidBodyState
+    {
+        type           sixDoFRigidBodyState;
+        libs           (sixDoFRigidBodyState);
+        patches        (hull);
+        angleFormat    degrees;
+    }
+
+    solverInfo
+    {
+        type            solverInfo;
+        writeControl    timeStep;
+        writeInterval   1;
+        libs            ("libutilityFunctionObjects.so");
+        fields          (alpha.water k omega p_rgh U); // U is only available when momentemPredictor is on
+    }
+
+    parametersUpdate // used for changing deltaT, maxCo and maxAlphaCo
+    {
+        para {#include        "../Parameters"}
+        type                timeActivatedFileUpdate;
+        libs                ("libutilityFunctionObjects.so");
+        fileToUpdate        "$FOAM_CASE/Parameters";
+        timeVsFile
+        (
+            ($para.time0 "$FOAM_CASE/Parameters.0")
+            ($para.time1 "$FOAM_CASE/Parameters.1")
+            ($para.time2 "$FOAM_CASE/Parameters.2")
+            ($para.time3 "$FOAM_CASE/Parameters.3")
+        );
+    }
+}
+
+// ************************************************************************* //

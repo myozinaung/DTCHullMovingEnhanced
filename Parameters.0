@@ -1,0 +1,149 @@
+// NOTE: #eval doesn't work in OpenFoam Foundation Version
+
+// *********************** SHIP SPEED (0.orig/U) *********************** //
+Uknot     25;   // [knot] in Full Scale
+Scale     #eval{355.0/5.976};
+U         #eval{$Uknot*1852/3600/sqrt($Scale)}; // corrseponding model speed in [m/s]
+
+noCores   4;
+
+// *********************** RUNTIME CONTROLS (controlDict) *********************** //
+// can change during running the solver
+startTime       0;
+endTime         35;  // [sec]
+writeInterval   1;   // [sec]
+
+// startFrom   startTime;
+startFrom   latestTime;
+
+stopAt      endTime;
+// stopAt          writeNow;
+// stopAt          nextWrite;
+
+CFLAutoTimeStep  yes;    // adjust time step with max courant number, set "no" for manual time steps
+
+// Adjust deltaT, maxCo and maxAlphaCo with time
+time0     0;      maxCo0  25;      maxAlphaCo0    15;    deltaT0     0.0001;
+time1     0.001;   maxCo1  10;     maxAlphaCo1     5;     deltaT1     0.0002;
+time2     1.00;   maxCo2  15;     maxAlphaCo2     10;    deltaT2     0.0005;
+time3     2.00;   maxCo3  25;     maxAlphaCo3     15;    deltaT3     0.0010;
+
+deltaT          $deltaT0;
+
+// for CFL Variable Time Step
+maxCo           $maxCo0;     // max Courant No.
+maxAlphaCo      $maxAlphaCo0;     // max Interface Courant No.
+maxDeltaT       0.01;
+
+//*********************** MOTION and DYNAMIC MESH (dynamicMeshDict) *********************** //
+mass            412.73;    // [kg]
+Ixx             40;  // [kg.m^2] for Roll motion (not impoartant here)
+Iyy             921; // [kg.m^2] for Pitch motion
+Izz             921; // [kg.m^2] for Yaw motion (not important here)
+centreOfMass    (2.929541 0 0.2); // [m] (x y z)
+
+// Mesh Morphing Range for the moving body (meshes within the range will deform)
+innerDistance   0.3;
+outerDistance   1;
+meshDiffusivity inverseVolume (hull bottom); // inverseDistance, inverseVolume, uniform, quadratic inverseDistance
+
+//**************** MESHING (blockMeshDict) **************** //
+// XYZ Bounds
+xmin    -26;    xmax    16;     xcells  42;     // no. of celles between xmin and xmax
+ymin    -19;    ymax    0;      ycells  19;
+zmin    -16;    zmax    4;
+
+// Z-dir Refinement
+// for Reference
+// dz01     0.025 // height of cell between z0 and z1   
+// dz12     0.025
+// dz23     0.01
+// dz34     0.01
+// dz45     0.032
+// dz56     0.120
+
+zWL         0.244;     // Waterline or Free Surface Height
+zcellsFS    4;          // no. of refined cells just above and below Free Surface
+
+z0   $zmin;         // River Bed from Ship Base
+z1   -1; // Deep
+z2   #eval{$zWL-(0.014*$zcellsFS)};          // Just below Free Surface
+// z2   0.185;          // Just below Free Surface
+z3   $zWL;                                  // Free Surface Height
+z4   #eval{$zWL+(0.014*$zcellsFS)};          // Just above Free Surface
+// z4   0.3;          // Just above Free Surface
+z5   1.6;
+z6   $zmax;         // Top End of Atmosphere
+
+// no. of cells between z0 and z1
+zcells01    50;             zGrading01      0.05;
+zcells12    50;             zGrading12      1;
+zcells23    $zcellsFS;      zGrading23      1;
+zcells34    $zcellsFS;      zGrading34      1;
+zcells45    40;             zGrading45      1;
+zcells56    20;             zGrading56      5;
+
+yGrading    1;
+
+// REFINEMENT BOX REGIONS XY(Z)-dir refinement (topoSetDict and refineMeshDict)
+xminC1     -10;    xmaxC1      10;      dxC1    #eval{$xmaxC1-$xminC1};
+xminC2     -5;     xmaxC2      9.0;     dxC2    #eval{$xmaxC2-$xminC2};
+xminC3     -3;     xmaxC3      8.0;     dxC3    #eval{$xmaxC3-$xminC3};
+xminC4     -2;     xmaxC4      7.0;     dxC4    #eval{$xmaxC4-$xminC4};
+xminC5     -1;     xmaxC5      6.5;     dxC5    #eval{$xmaxC5-$xminC5};
+xminC6     -0.5;   xmaxC6      6.25;    dxC6    #eval{$xmaxC6-$xminC6};
+
+// use same value for ymin and ymin2 for Rectangular Box (different values for Trapezoidal/Rotated Box)
+yminC1     -6;     ymaxC1      0;       ymin2C1 -6;        dy2C1   #eval{$ymaxC1-$ymin2C1};        dy1C1   #eval{$ymin2C1-$yminC1}; // dy2 = ymax - ymin2; dy1 = ymin2 - ymin; 
+yminC2     -3.0;   ymaxC2      0;       ymin2C2 -3.0;      dy2C2   #eval{$ymaxC2-$ymin2C2};        dy1C2   #eval{$ymin2C2-$yminC2};
+yminC3     -1.5;   ymaxC3      0;       ymin2C3 -1.5;      dy2C3   #eval{$ymaxC3-$ymin2C3};        dy1C3   #eval{$ymin2C3-$yminC3};
+yminC4     -1.0;   ymaxC4      0;       ymin2C4 -1.0;      dy2C4   #eval{$ymaxC4-$ymin2C4};        dy1C4   #eval{$ymin2C4-$yminC4};
+yminC5     -0.6;   ymaxC5      0;       ymin2C5 -0.6;      dy2C5   #eval{$ymaxC5-$ymin2C5};        dy1C5   #eval{$ymin2C5-$yminC5};
+yminC6     -0.55;  ymaxC6      0;       ymin2C6 -0.55;     dy2C6   #eval{$ymaxC6-$ymin2C6};        dy1C6   #eval{$ymin2C6-$yminC6};
+
+zminC1     -3;    zmaxC1      3.0;     dzC1    #eval{$zmaxC1-$zminC1};
+zminC2     -2.5;  zmaxC2      2.0;     dzC2    #eval{$zmaxC2-$zminC2};
+zminC3     -1.0;  zmaxC3      1.5;     dzC3    #eval{$zmaxC3-$zminC3};
+zminC4     -0.6;  zmaxC4      1.0;     dzC4    #eval{$zmaxC4-$zminC4};
+zminC5     -0.3;  zmaxC5      0.8;     dzC5    #eval{$zmaxC5-$zminC5};
+zminC6     -0.15; zmaxC6      0.65;    dzC6    #eval{$zmaxC6-$zminC6};
+
+
+// BODY MESH and REFINEMENT (snappyHexMeshDict)
+maxLocalCells   100000; // 1e6 (not work on OF10)
+maxGlobalCells  2000000;
+
+// for Hull
+featuresIncludedAngle     150;  // [deg] surfaceFeatureExtractDict
+edgeRefinementLevel       0;              // used with "hull.eMesh"
+surfaceRefinementLevel    (0 0);       // (min_level max_level) e.g. ((0.05 3) (0.1 2) (0.2 2)); >> 3 levels (distance refinement_level)
+resolveFeatureAngle       45; // (smaller >> more feature)
+regionRefinementLevels    ((0 0)); // (distance refinement_level)
+nCellsBetweenLevels       3;
+
+// for Prism Layers
+addLayers                 true;
+noPrismLayers             3;
+expansionRatio            1.5;
+finalLayerThickness       0.7;  // relative size to background mesh
+minLayerThickness         0.25;  // relative size to background mesh
+layerFeatureAngle         180;    // ori 60, 0 >> only add layers to flat surface
+
+//*********************** TURBULENCE MODEL and WALL FUNCTIONS *********************** //
+// TURBULENCE MODEL k-omega SST (initial values, "0" dir)
+// nut         5e-07;
+// k           0.00015;
+// omega       2;
+
+// // for nutkRoughWallFunction
+// SandGrainHeight          100e-6;     // Ks, Sand-grain roughness height (0 for smooth walls)
+// RoughnessConst           0.5;        // Cs, Roughness constant (0.5 to 1.0)
+
+// *********************** FLUID PROPERTIES ("constant/transportProperties") *********************** //
+// nu_water    1.09e-06;
+// nu_air      1.48e-05;
+
+// rho_water   998.8;
+// rho_air     1;
+
+// ***************************************************************************** //
