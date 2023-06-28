@@ -16,5 +16,6 @@ rm log.decomposePar*
 rm log.interFoam*
 rm log.reconstructPar
 rm -rf logs
+rm Parameters.*
 
 #------------------------------------------------------------------------------
