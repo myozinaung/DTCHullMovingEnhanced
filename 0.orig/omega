@@ -16,7 +16,9 @@ FoamFile
 
 dimensions      [0 0 -1 0 0 0 0];
 
-internalField   uniform 2;
+para {#include        "../Parameters"}
+
+internalField   uniform $para/omega;
 
 boundaryField
 {

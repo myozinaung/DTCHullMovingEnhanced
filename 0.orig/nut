@@ -16,7 +16,9 @@ FoamFile
 
 dimensions      [0 2 -1 0 0 0 0];
 
-internalField   uniform 5e-07;
+para {#include        "../Parameters"}
+
+internalField   uniform $para/nut;
 
 boundaryField
 {
@@ -41,8 +43,8 @@ boundaryField
     hull
     {
         type            nutkRoughWallFunction;
-        Ks              uniform 100e-6;
-        Cs              uniform 0.5;
+        Ks              uniform $para/sandGrainHeight;
+        Cs              uniform $para/roughnessConst;
         value           $internalField;
     }
 }

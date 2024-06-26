@@ -45,6 +45,8 @@ centreOfMass    (2.929541 0 0.2); // [m] (x y z)
 innerDistance   0.3;
 outerDistance   1;
 meshDiffusivity inverseVolume (hull bottom); // inverseDistance, inverseVolume, uniform, quadratic inverseDistance
+translationDamperCoeff  8596;
+rotationDamperCoeff     11586;
 
 //**************** MESHING (blockMeshDict) ************************************************* //
 // XYZ Bounds of Rectangular Block
@@ -134,19 +136,33 @@ layerFeatureAngle         180;   // ori 60, 0 >> only add layers to flat surface
 
 //*********************** TURBULENCE MODEL and WALL FUNCTIONS *********************** //
 // TURBULENCE MODEL k-omega SST (initial values, "0" dir)
-// nut         5e-07;
-// k           0.00015;
-// omega       2;
+nut         5e-07;
+k           0.00015;
+omega       2;
 
-// // for nutkRoughWallFunction
-// SandGrainHeight          100e-6;     // Ks, Sand-grain roughness height (0 for smooth walls)
-// RoughnessConst           0.5;        // Cs, Roughness constant (0.5 to 1.0)
+// for nutkRoughWallFunction
+sandGrainHeight          100e-6;     // Ks, Sand-grain roughness height (0 for smooth walls)
+roughnessConst           0.5;        // Cs, Roughness constant (0.5 to 1.0)
 
 // *********************** FLUID PROPERTIES ("constant/transportProperties") *********************** //
-// nu_water    1.09e-06;
-// nu_air      1.48e-05;
+nu_water    1.09e-06;
+nu_air      1.48e-05;
 
-// rho_water   998.8;
-// rho_air     1;
+rho_water   998.8;
+rho_air     1;
 
 // ***************************************************************************** //
+
+//*********************** RUNTIME CONTROL, STOPPING CRITERIA *********************** //
+// DIVERGNECE CHECK
+maxInitialMomentumResidual  0.7; // divergence indicator
+maxMomentumIter             100; // divergence indicator
+
+// CONVERGENCE CHECK
+minMomentumResidual         1e-04; // convergnce indicator
+
+// Stop if change in Drage Coeff (Cd) stay within the Range averaged over a Window of steps (Converged)
+dragCoeffRange          1e-3;
+dragCoeffWindow         20; // steps
+
+

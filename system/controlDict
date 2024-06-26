@@ -67,13 +67,21 @@ functions
         CofR            $para/centreOfMass;
     }
 
-    sixDoFRigidBodyState
+    rigidBodyState
     {
-        type           sixDoFRigidBodyState;
-        libs           (sixDoFRigidBodyState);
+        type           rigidBodyState;
+        libs           ("librigidBodyState.so");
         patches        (hull);
         angleFormat    degrees;
     }
+    
+    // sixDoFRigidBodyState
+    // {
+    //     type           sixDoFRigidBodyState;
+    //     libs           (sixDoFRigidBodyState);
+    //     patches        (hull);
+    //     angleFormat    degrees;
+    // }
 
     solverInfo
     {
@@ -101,22 +109,23 @@ functions
 }
 
 // ************************************************************************* //
-// For example, to stop the calculation if:
+// Stopping Criteria, e.g., to stop the calculation if:
 
 // the momentum initial residual exceeds 0.9 (used as a divergence indicator), or
 // number of the momentum solver iterations exceeds 100 (used as a divergence indicator), or
 // if the average drag coefficient remains within a 0.001 range over a window of 20 steps and the maximum momentum equation residual falls below 1e-4
-runTimeControl1 // to stop w
+runTimeControl1
 {
     type            runTimeControl;
     libs            ("libutilityFunctionObjects.so");
     conditions
     {
+        para {#include        "../Parameters"}
         condition0
         {
             type            equationInitialResidual;
             fields          (U);
-            value           0.7;
+            value           $para/maxInitialMomentumResidual;
             mode            maximum;
         }
         // OR
@@ -124,7 +133,7 @@ runTimeControl1 // to stop w
         {
             type            equationMaxIterCondition;
             fields          (U);
-            threshold       100;
+            threshold       $para/maxMomentumIter;
         }
         // OR
         condition2
@@ -132,8 +141,8 @@ runTimeControl1 // to stop w
             type            average;
             functionObject  forceCoeffs1;
             fields          (Cd);
-            tolerance       1e-3;
-            window          20;
+            tolerance       $para/dragCoeffRange;
+            window          $para/dragCoeffWindow;
             groupID         1; // same groupID means the conditions are checked together (AND)
         }
         // AND
@@ -141,7 +150,7 @@ runTimeControl1 // to stop w
         {
             type            equationInitialResidual;
             fields          (U);
-            value           1e-04;
+            value           $para/minMomentumResidual;
             mode            minimum;
             groupID         1;
         }
