@@ -13,6 +13,7 @@ noCores   8; // no. of subdomains in decomposeParDict
 startTime       0;
 endTime         35;  // [sec]
 writeInterval   1;   // [sec]
+purgeWrite      1;   // 1 >> save only last write (to save storage), 0 >> save all write (needed for animation)
 
 // startFrom   startTime;
 startFrom   latestTime; // resume from previous stop time (start from 0 sec for new sim)
@@ -49,10 +50,18 @@ translationDamperCoeff  8596;
 rotationDamperCoeff     11586;
 
 //**************** MESHING (blockMeshDict) ************************************************* //
+// Hull Bounding Box
+hullX   6.27559; // hull length (~Lpp)
+hullY   0.858505; // hull breadth
+hullZ   0.572322; // hull depth
+
 // XYZ Bounds of Rectangular Block
-xmin    -26;    xmax    16;     xcells  42;     // no. of celles between xmin and xmax
-ymin    -19;    ymax    0;      ycells  19;
-zmin    -16;    zmax    4;
+// xmin = -4Lpp, xmax = 1.5Lpp
+// ymin = -3Lpp, ymax = 0
+// zmin = -2Lpp, zmax = 1.0Lpp
+xmin    #eval{floor(-4*hullX)};    xmax    #eval{ceil(1.5*hullX)};     xcells  #eval{$xmax - xmin};     // no. of celles between xmin and xmax
+ymin    #eval{floor(-3*hullX)};    ymax    0;                          ycells  #eval{$ymax - ymin};
+zmin    #eval{floor(-2*hullX)};    zmax    #eval{floor(1*hullX)};
 
 // Z-dir Refinement
 // for Reference
@@ -77,12 +86,12 @@ z5   1.6;
 z6   $zmax;         // Top End of Atmosphere
 
 // no. of cells between z0 and z1
-zcells01    50;             zGrading01      0.05;
+zcells01    50;             zGrading01      0.05; // gradually reduced to 5%
 zcells12    50;             zGrading12      1;
 zcells23    $zcellsFS;      zGrading23      1;
 zcells34    $zcellsFS;      zGrading34      1;
 zcells45    40;             zGrading45      1;
-zcells56    20;             zGrading56      5;
+zcells56    20;             zGrading56      5; // gradually increased by 5 times
 
 yGrading    1;
 
@@ -151,18 +160,17 @@ nu_air      1.48e-05;
 rho_water   998.8;
 rho_air     1;
 
-// ***************************************************************************** //
-
 //*********************** RUNTIME CONTROL, STOPPING CRITERIA *********************** //
 // DIVERGNECE CHECK
-maxInitialMomentumResidual  0.7; // divergence indicator
-maxMomentumIter             100; // divergence indicator
+maxInitialMomentumResidual  0.7; // divergence indicator (too much U residual)
+maxMomentumIter             100; // divergence indicator (too long)
 
 // CONVERGENCE CHECK
-minMomentumResidual         1e-04; // convergnce indicator
+minMomentumResidual         1e-04; // convergnce indicator (low enough U residual)
 
 // Stop if change in Drage Coeff (Cd) stay within the Range averaged over a Window of steps (Converged)
-dragCoeffRange          1e-3;
+dragCoeffRange          1e-3; // (not changing too much)
 dragCoeffWindow         20; // steps
 
+// ***************************************************************************** //
 
