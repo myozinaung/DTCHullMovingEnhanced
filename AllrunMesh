@@ -7,7 +7,7 @@ touch case.foam
 
 # copy DTC hull STL to triSurface folder
 mkdir -p constant/triSurface
-cp hull.stl constant/triSurface/
+cp hull.stl.gz constant/triSurface/
 
 # Generate hull.eMesh file (edge features)
 runApplication surfaceFeatureExtract
@@ -15,7 +15,7 @@ runApplication surfaceFeatureExtract
 runApplication blockMesh # z-dir refinement
 
 # Refinement in x and y dir only
-for i in 1 2 3 4 5 6
+for i in 1 2 3 4 5 #6
 do
     runApplication -s $i \
         foamDictionary  system/refineMeshDict -entry set -set c${i}
@@ -27,18 +27,18 @@ do
         refineMesh -dict system/refineMeshDict -overwrite
 done
 
-# # Refinement in all 3 directions
-# for i in 6
-# do
-#     runApplication -s $i \
-#         foamDictionary  system/refineMeshDict3D -entry set -set c${i}
+# Refinement in all 3 directions
+for i in 6
+do
+    runApplication -s $i \
+        foamDictionary  system/refineMeshDict3D -entry set -set c${i}
 
-#     runApplication -s $i \
-#         topoSet -dict system/topoSetDict
+    runApplication -s $i \
+        topoSet -dict system/topoSetDict
 
-#     runApplication -s $i \
-#         refineMesh -dict system/refineMeshDict3D -overwrite
-# done
+    runApplication -s $i \
+        refineMesh -dict system/refineMeshDict3D -overwrite
+done
 
 runApplication -s beforeSnappy checkMesh -allGeometry -allTopology
 

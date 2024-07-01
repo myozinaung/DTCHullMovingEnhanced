@@ -1,14 +1,25 @@
 //**************** MESHING (blockMeshDict) ************************************************* //
 // Hull Bounding Box (Half Hull)
-// hullXmin  -0.113504;  hullXmax   6.16209;   dHullX    #eval{$hullXmax - $hullXmin};  // hull length (~Lpp)
-// hullYmin  -0.429252;  hullYmax   0;         dHullY    #eval{$hullYmax - $hullYmin};  // hull hlaf-breadth
-// hullZmin  0;          hullZmax   0.572322;  dHullZ    #eval{$hullZmax - $hullZmin};  // hull depth
-// zWL       0.244;     // Waterline or Free Surface Height
+hullXmin  -0.113504;
+hullYmin  -0.429252;
+hullZmin  0;
+hullXmax   6.16209;
+hullYmax   0;
+hullZmax   0.572322;
+zWL       0.244;     // Waterline or Free Surface Height
 
-hullXmin  0;  hullXmax   4.176;   dHullX    #eval{$hullXmax - $hullXmin};  // hull length (~Lpp)
-hullYmin  -0.45555;  hullYmax   0;         dHullY    #eval{$hullYmax - $hullYmin};  // hull hlaf-breadth
-hullZmin  -0.026;          hullZmax   0.423;  dHullZ    #eval{$hullZmax - $hullZmin};  // hull depth
-zWL       0.2264;     // Waterline or Free Surface Height
+// hullXmin   0;
+// hullYmin  -0.45555;
+// hullZmin  -0.026;
+// hullXmax   4.176;
+// hullYmax   0;
+// hullZmax   0.423;
+// zWL       0.2264;     // Waterline or Free Surface Height
+
+//////////// Below are automatically calculated //////////////
+dHullX    #eval{$hullXmax - $hullXmin};  // hull length (~Lpp)
+dHullY    #eval{$hullYmax - $hullYmin};  // hull hlaf-breadth
+dHullZ    #eval{$hullZmax - $hullZmin};  // hull depth
 
 // XYZ Bounds of Rectangular Block
 // xmin = -4Lpp, xmax = Lpp + 1.5Lpp
@@ -16,7 +27,7 @@ zWL       0.2264;     // Waterline or Free Surface Height
 // zmin = -2.5Lpp, zmax = 1.0Lpp
 xmin    #eval{floor(-4*$dHullX)};    xmax    #eval{ceil(2.5*$dHullX)};     xcells  #eval{round($xmax - $xmin)};     // no. of celles between xmin and xmax (assume max 1m cell size)
 ymin    #eval{floor(-3*$dHullX)};    ymax    0;                            ycells  #eval{round($ymax - $ymin)};
-zmin    #eval{floor(-2.5*$dHullX)};  zmax    #eval{floor(0.7*$dHullX)};
+zmin    #eval{floor(-2.5*$dHullX)};  zmax    #eval{ceil(1.0*$dHullX)};
 
 // Z-dir Refinement
 nCellFS    4;          // no. of refined cells just above and below Free Surface
@@ -28,7 +39,7 @@ dCellz12     0.025;
 dCellz23     $FSCellThickness;
 dCellz34     $FSCellThickness;;
 dCellz45     0.032;
-dCellz56     0.120;
+dCellz56     0.180;
 
 z0   $zmin;
 z1   #eval{$hullZmin - 1.80*$dHullZ};  // same as zminC3
@@ -83,7 +94,7 @@ ymaxC6  0;
 zminC6  #eval{$hullZmin - 0.25*$dHullZ}; // -25% of hull depth
 zminC5  #eval{$hullZmin - 0.50*$dHullZ}; // -50% of hull depth
 zminC4  #eval{$hullZmin - 1.00*$dHullZ}; // -100% of hull depth
-zminC3  #eval{$hullZmin - 1.80*$dHullZ}; // -180% of hull depth
+zminC3  #eval{$hullZmin - 1.80*$dHullZ}; // -180% of hull depth, same as z1
 zminC2  #eval{$hullZmin - 2.60*$dHullZ}; // -260% of hull depth
 zminC1  #eval{$hullZmin - 4.40*$dHullZ}; // -440% of hull depth
 
@@ -115,7 +126,7 @@ minLayerThickness         0.25;  // relative size to background mesh
 layerFeatureAngle         180;   // ori 60, 0 >> only add layers to flat surface
 
 // Additional Regions Refinements (e.g. Rudder region, Bow Thruster)
-
+// topoSet cannot be used for these regions, topoSet region must be cover the whole geometry
 
 
 
