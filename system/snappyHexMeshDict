@@ -13,7 +13,7 @@ FoamFile
     object      snappyHexMeshDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-para {#include        "../Parameters"}
+para {#include        "../ParametersMesh"}
 
 // Which of the steps to run
 castellatedMesh true;
@@ -45,7 +45,7 @@ geometry
 // Settings for the castellatedMesh generation.
 castellatedMeshControls
 {
-    para {#include        "../Parameters"}
+    para {#include        "../ParametersMesh"}
 
     // Refinement parameters
     // ~~~~~~~~~~~~~~~~~~~~~
@@ -103,7 +103,7 @@ castellatedMeshControls
     {
         hull
         {
-            para {#include        "../Parameters"}
+            para {#include        "../ParametersMesh"}
             // Surface-wise min and max refinement level
             level $para/surfaceRefinementLevel; 
         }
@@ -129,7 +129,7 @@ castellatedMeshControls
     {
         hull // not included in original settings
         {
-            para {#include        "../Parameters"}
+            para {#include        "../ParametersMesh"}
             mode distance;
             levels $para/regionRefinementLevels;
         }
@@ -183,7 +183,7 @@ snapControls
 // Settings for the layer addition.
 addLayersControls
 {
-    para {#include        "../Parameters"}
+    para {#include        "../ParametersMesh"}
     // Are the thickness parameters below relative to the undistorted
     // size of the refined cell outside layer (true) or absolute sizes (false).
     relativeSizes true;
@@ -193,7 +193,7 @@ addLayersControls
     {
         hull
         {
-            para {#include        "../Parameters"}
+            para {#include        "../ParametersMesh"}
             nSurfaceLayers $para/nPrismLayers;
 
         }

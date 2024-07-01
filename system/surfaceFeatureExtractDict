@@ -16,7 +16,7 @@ FoamFile
 
 hull.stl
 {
-    para {#include        "../Parameters"}
+    para {#include        "../ParametersMesh"}
     // How to obtain raw features (extractFromFile || extractFromSurface)
     extractionMethod    extractFromSurface;
 

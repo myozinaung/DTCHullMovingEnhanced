@@ -14,7 +14,7 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-para {#include        "../Parameters"}
+para {#include        "../ParametersMesh"}
 
 scale 1;
 

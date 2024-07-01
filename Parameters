@@ -53,8 +53,8 @@ rotationDamperCoeff     11586;
 //**************** MESHING (blockMeshDict) ************************************************* //
 // Hull Bounding Box
 hullXmin  -0.113504;  hullXmax   6.16209;   dHullX    #eval{$hullXmax - $hullXmin};  // hull length (~Lpp)
-hullYmin  -0.429252;  hullYmax   0.429252; // hull breadth (B) -0.429253 to 0.429252 (delta: 0.858505)
-hullZmin  0;          hullZmax   0.572322; // hull depth (D) 0 to 0.572322 (delta: 0.572322)
+hullYmin  -0.429252;  hullYmax   0.429252;
+hullZmin  0;          hullZmax   0.572322;
 zWL         0.244;     // Waterline or Free Surface Height
 
 // XYZ Bounds of Rectangular Block
@@ -63,7 +63,7 @@ zWL         0.244;     // Waterline or Free Surface Height
 // zmin = -2.5Lpp, zmax = 1.0Lpp
 xmin    #eval{floor(-4*$dHullX)};    xmax    #eval{ceil(2.5*$dHullX)};     xcells  #eval{round($xmax - $xmin)};     // no. of celles between xmin and xmax (assume max 1m cell size)
 ymin    #eval{floor(-3*$dHullX)};    ymax    0;                            ycells  #eval{round($ymax - $ymin)};
-zmin    #eval{floor(-2.5*$dHullX)};    zmax    #eval{floor(0.7*$dHullX)};
+zmin    #eval{floor(-2.5*$dHullX)};  zmax    #eval{floor(0.7*$dHullX)};
 
 // Z-dir Refinement
 // for Reference
@@ -102,6 +102,7 @@ xmin23   2.0;     xmax23   1.0;
 xmin34   1.0;     xmax34   1.0;
 xmin45   1.0;     xmax45   0.5;
 xmin56   0.5;     xmax56   0.25;
+// xmin6H   0.5;  xmax6H   0.1;
 // xmin6H   0.3865;  xmax6H   0.088;
 
 xminC6  #eval{round(($hullXmin - 0.5)*2)/2}; // round to 0.5 decimal place
@@ -131,6 +132,7 @@ ymin23   1.5;
 ymin34   0.5;
 ymin45   0.4;
 ymin56   0.1;
+// ymin6H   0.1;
 // ymin6H   0.07075;
 
 yminC6  #eval{round(($hullYmin - 0.1)*100)/100}; // round to 0.01 decimal place
@@ -170,6 +172,7 @@ zmin23   0.5;     zmax23   0.5;
 zmin34   0.4;     zmax34   0.3;
 zmin45   0.3;     zmax45   0.2;
 zmin56   0.15;    zmax56   0.15;
+// zmin6H   0.15;    zmax6H   0.1;
 // zmin6H   0.15;    zmax6H   0.07768;
 
 zminC6  #eval{floor(($hullZmin - 0.15)*100)/100}; // round to 0.01 decimal place
