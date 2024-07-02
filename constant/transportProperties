@@ -13,13 +13,13 @@ FoamFile
     object      transportProperties;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-para {#include        "../Parameters"}
+para {#include        "../ParametersConst"}
 
 phases          (water air);
 
 water
 {
-    para {#include        "../Parameters"}
+    para {#include        "../ParametersConst"}
     transportModel  Newtonian;
     nu              $para/nu_water;
     rho             $para/rho_water;
@@ -27,7 +27,7 @@ water
 
 air
 {
-    para {#include        "../Parameters"}
+    para {#include        "../ParametersConst"}
     transportModel  Newtonian;
     nu              $para/nu_air;
     rho             $para/rho_air;

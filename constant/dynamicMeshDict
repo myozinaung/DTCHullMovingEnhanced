@@ -13,7 +13,7 @@ FoamFile
     object      dynamicMeshDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-para {#include        "../Parameters"}
+para {#include        "../ParametersConst"}
 
 dynamicFvMesh   dynamicMotionSolverFvMesh;
 

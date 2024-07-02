@@ -1,0 +1,256 @@
+// For OpenFOAM ESI Version (v2212)
+// NOTE: #eval doesn't work in OpenFoam Foundation Version
+
+// *********************** SHIP SPEED (0.orig/U) ********************************* //
+Uknot     25;                                   // [knot] in Full Scale
+Scale     #eval{355.0/5.976};                   // Scale ratio
+U         #eval{$Uknot*1852/3600/sqrt($Scale)}; // corrseponding model speed in [m/s]
+
+noCores   8; // no. of subdomains in decomposeParDict
+
+// *********************** RUNTIME CONTROLS (controlDict) *********************** //
+// can be changed during running the solver
+startTime       0;
+endTime         35;  // [sec]
+writeInterval   1;   // [sec]
+purgeWrite      1;   // 1 >> save only last write (to save storage), 0 >> save all write (needed for animation)
+
+// startFrom   startTime;
+startFrom   latestTime; // resume from previous stop time (start from 0 sec for new sim)
+
+stopAt      endTime;
+// stopAt          writeNow;  // save the data at current time step and stop
+// stopAt          nextWrite; // save the data at next writeInterval and stop
+
+CFLAutoTimeStep  yes;    // adjust time step with max courant number, set "no" for manual time steps
+
+// To adjust deltaT, maxCo and maxAlphaCo with time
+time0     0;      maxCo0  5;      maxAlphaCo0     5;     deltaT0     0.0001;
+time1     0.10;   maxCo1  10;     maxAlphaCo1     5;     deltaT1     0.0002;
+time2     0.50;   maxCo2  15;     maxAlphaCo2     10;    deltaT2     0.0005;
+time3     1.00;   maxCo3  25;     maxAlphaCo3     15;    deltaT3     0.0010;
+
+deltaT          $deltaT0; // for manual time step
+maxCo           $maxCo0;          // max Courant No.
+maxAlphaCo      $maxAlphaCo0;     // max Interface Courant No.
+maxDeltaT       0.01;
+
+//*********************** MOTION and DYNAMIC MESH (dynamicMeshDict) *********************** //
+// Get from Hydrostatics Analysis (Half Model)
+mass            412.73;   // [kg]
+Ixx             40;       // [kg.m^2] for Roll motion (not impoartant here)
+Iyy             921;      // [kg.m^2] for Pitch motion
+Izz             921;      // [kg.m^2] for Yaw motion (not important here)
+centreOfMass    (2.929541 0 0.2); // [m] (x y z), (LCB 0 VCG)
+
+// Mesh Morphing Range for the moving body (meshes within the range will deform)
+innerDistance   0.3;
+outerDistance   1;
+meshDiffusivity inverseVolume (hull bottom); // inverseDistance, inverseVolume, uniform, quadratic inverseDistance
+translationDamperCoeff  8596;
+rotationDamperCoeff     11586;
+
+//**************** MESHING (blockMeshDict) ************************************************* //
+// Hull Bounding Box
+hullXmin  -0.113504;  hullXmax   6.16209;   dHullX    #eval{$hullXmax - $hullXmin};  // hull length (~Lpp)
+hullYmin  -0.429252;  hullYmax   0.429252;
+hullZmin  0;          hullZmax   0.572322;
+zWL         0.244;     // Waterline or Free Surface Height
+
+// XYZ Bounds of Rectangular Block
+// xmin = -4Lpp, xmax = Lpp + 1.5Lpp
+// ymin = -3Lpp, ymax = 0
+// zmin = -2.5Lpp, zmax = 1.0Lpp
+xmin    #eval{floor(-4*$dHullX)};    xmax    #eval{ceil(2.5*$dHullX)};     xcells  #eval{round($xmax - $xmin)};     // no. of celles between xmin and xmax (assume max 1m cell size)
+ymin    #eval{floor(-3*$dHullX)};    ymax    0;                            ycells  #eval{round($ymax - $ymin)};
+zmin    #eval{floor(-2.5*$dHullX)};  zmax    #eval{floor(0.7*$dHullX)};
+
+// Z-dir Refinement
+// for Reference
+// dCellz01     0.025 // height of cell between z0 and z1
+// dCellz12     0.025
+// dCellz23     0.014
+// dCellz34     0.014
+// dCellz45     0.032
+// dCellz56     0.120
+
+nCellFS    4;          // no. of refined cells just above and below Free Surface
+FSCellThickness 0.014; // Free Surface Cell Thickness
+
+z0   $zmin;
+z1   #eval{$hullZmin - 1};   // 1m below the hull
+z2   #eval{$zWL-($FSCellThickness*$nCellFS)};          // Just below Free Surface
+z3   $zWL;                                  // Free Surface Height
+z4   #eval{$zWL+($FSCellThickness*$nCellFS)};          // Just above Free Surface
+z5   #eval{$hullZmax + 1};  // 1m above the hull
+z6   $zmax;         // Top End of Atmosphere
+
+// no. of cells between z0 and z1
+zcells01    50;             zGrading01      0.05; // gradually reduced to 5%
+zcells12    50;             zGrading12      1;
+zcells23    $nCellFS;       zGrading23      1;
+zcells34    $nCellFS;       zGrading34      1;
+zcells45    40;             zGrading45      1;
+zcells56    20;             zGrading56      5; // gradually increased by 5 times
+
+yGrading    1;
+
+//////////// REFINEMENT BOX REGIONS XY(Z)-dir refinement (topoSetDict and refineMeshDict) ////////////
+// X dimensions
+xmin12   5.0;     xmax12   1.0;
+xmin23   2.0;     xmax23   1.0;
+xmin34   1.0;     xmax34   1.0;
+xmin45   1.0;     xmax45   0.5;
+xmin56   0.5;     xmax56   0.25;
+// xmin6H   0.5;  xmax6H   0.1;
+// xmin6H   0.3865;  xmax6H   0.088;
+
+xminC6  #eval{round(($hullXmin - 0.5)*2)/2}; // round to 0.5 decimal place
+xminC5  #eval{$xminC6 - $xmin56};
+xminC4  #eval{$xminC5 - $xmin45};
+xminC3  #eval{$xminC4 - $xmin34};
+xminC2  #eval{$xminC3 - $xmin23};
+xminC1  #eval{$xminC2 - $xmin12}; // must be larger than xmin
+
+xmaxC6  #eval{round(($hullXmax + 0.1)*10)/10}; // round to 0.1 decimal place
+xmaxC5  #eval{$xmaxC6 + $xmax56};
+xmaxC4  #eval{$xmaxC5 + $xmax45};
+xmaxC3  #eval{$xmaxC4 + $xmax34};
+xmaxC2  #eval{$xmaxC3 + $xmax23};
+xmaxC1  #eval{$xmaxC2 + $xmax12}; // must be larger than
+
+dxC1    #eval{$xmaxC1-$xminC1};
+dxC2    #eval{$xmaxC2-$xminC2};
+dxC3    #eval{$xmaxC3-$xminC3};
+dxC4    #eval{$xmaxC4-$xminC4};
+dxC5    #eval{$xmaxC5-$xminC5};
+dxC6    #eval{$xmaxC6-$xminC6};
+
+// Y dimensions
+ymin12   3.0;
+ymin23   1.5;
+ymin34   0.5;
+ymin45   0.4;
+ymin56   0.1;
+// ymin6H   0.1;
+// ymin6H   0.07075;
+
+yminC6  #eval{round(($hullYmin - 0.1)*100)/100}; // round to 0.01 decimal place
+yminC5  #eval{$yminC6 - $ymin56};
+yminC4  #eval{$yminC5 - $ymin45};
+yminC3  #eval{$yminC4 - $ymin34};
+yminC2  #eval{$yminC3 - $ymin23};
+yminC1  #eval{$yminC2 - $ymin12}; // must be larger than ymin
+
+ymaxC1  0;
+ymaxC2  0;
+ymaxC3  0;
+ymaxC4  0;
+ymaxC5  0;
+ymaxC6  0;
+
+// for trapezoidal box
+ymin2C1 $yminC1;
+ymin2C2 $yminC2;
+ymin2C3 $yminC3;
+ymin2C4 $yminC4;
+ymin2C5 $yminC5;
+ymin2C6 $yminC6;
+// use same value for ymin and ymin2 for Rectangular Box (different values for Trapezoidal/Rotated Box)
+
+// for trapezoidal box
+dy2C1   #eval{$ymaxC1-$ymin2C1};        dy1C1   #eval{$ymin2C1-$yminC1}; // dy2 = ymax - ymin2; dy1 = ymin2 - ymin; 
+dy2C2   #eval{$ymaxC2-$ymin2C2};        dy1C2   #eval{$ymin2C2-$yminC2};
+dy2C3   #eval{$ymaxC3-$ymin2C3};        dy1C3   #eval{$ymin2C3-$yminC3};
+dy2C4   #eval{$ymaxC4-$ymin2C4};        dy1C4   #eval{$ymin2C4-$yminC4};
+dy2C5   #eval{$ymaxC5-$ymin2C5};        dy1C5   #eval{$ymin2C5-$yminC5};
+dy2C6   #eval{$ymaxC6-$ymin2C6};        dy1C6   #eval{$ymin2C6-$yminC6};
+
+// Z dimensions (these values can effect the mesh non-orthogonality at the transitions)
+zmin12   1.0;     zmax12   1.0;
+zmin23   0.5;     zmax23   0.5;
+zmin34   0.4;     zmax34   0.3;
+zmin45   0.3;     zmax45   0.2;
+zmin56   0.15;    zmax56   0.15;
+// zmin6H   0.15;    zmax6H   0.1;
+// zmin6H   0.15;    zmax6H   0.07768;
+
+zminC6  #eval{floor(($hullZmin - 0.15)*100)/100}; // round to 0.01 decimal place
+zminC5  #eval{$zminC6 - $zmin56};
+zminC4  #eval{$zminC5 - $zmin45};
+zminC3  #eval{$zminC4 - $zmin34};
+zminC2  #eval{$zminC3 - $zmin23};
+zminC1  #eval{$zminC2 - $zmin12}; // must be larger than zmin
+
+zmaxC6  #eval{ceil(($hullZmax + 0.1)*100)/100};
+zmaxC5  #eval{$zmaxC6 + $zmax56};
+zmaxC4  #eval{$zmaxC5 + $zmax45};
+// zmaxC3  #eval{$zmaxC4 + $zmax34};
+zmaxC3  $z5; // used same as z5 so that mesh non-orthogonality is reduced at the transition
+zmaxC2  #eval{$zmaxC3 + $zmax23};
+zmaxC1  #eval{$zmaxC2 + $zmax12}; // must be smaller than zmax
+
+// for trapezoidal box
+dzC1    #eval{$zmaxC1-$zminC1};
+dzC2    #eval{$zmaxC2-$zminC2};
+dzC3    #eval{$zmaxC3-$zminC3};
+dzC4    #eval{$zmaxC4-$zminC4};
+dzC5    #eval{$zmaxC5-$zminC5};
+dzC6    #eval{$zmaxC6-$zminC6};
+
+
+// BODY MESH and REFINEMENT (snappyHexMeshDict)
+maxLocalCells   5000000;
+maxGlobalCells  10000000;  // Max. Total Cells
+
+// Hull Refinement (Edge, Surface, Region)
+featuresIncludedAngle     150;     // [deg] surfaceFeatureExtractDict
+edgeRefinementLevel       0;       // used with "hull.eMesh"
+surfaceRefinementLevel    (0 0);   // (min_level max_level)
+resolveFeatureAngle       45;      // [deg] smaller >> more feature
+regionRefinementLevels    ((0 0)); // ((distance1 refinement_level1) (distance2 refinement_level2)) e.g. ((0.05 3) (0.1 2) (0.2 2)); >> 3 levels
+nCellsBetweenLevels       3;
+
+// Prism Layers
+addLayers                 true;
+nPrismLayers              3;
+expansionRatio            1.5;
+finalLayerThickness       0.7;   // relative size to background mesh
+minLayerThickness         0.25;  // relative size to background mesh
+layerFeatureAngle         180;   // ori 60, 0 >> only add layers to flat surface
+
+// Additional Regions Refinements (e.g. Rudder region, Bow Thruster)
+
+
+
+//*********************** TURBULENCE MODEL and WALL FUNCTIONS *********************** //
+// TURBULENCE MODEL k-omega SST (initial values, "0" dir)
+nut         5e-07;
+k           0.00015;
+omega       2;
+
+// for nutkRoughWallFunction
+sandGrainHeight          100e-6;     // Ks, Sand-grain roughness height (0 for smooth walls)
+roughnessConst           0.5;        // Cs, Roughness constant (0.5 to 1.0)
+
+// *********************** FLUID PROPERTIES ("constant/transportProperties") *********************** //
+nu_water    1.09e-06;
+nu_air      1.48e-05;
+
+rho_water   998.8;
+rho_air     1;
+
+//*********************** RUNTIME CONTROL, STOPPING CRITERIA *********************** //
+// DIVERGNECE CHECK
+maxInitialMomentumResidual  0.7; // divergence indicator (too much U residual)
+maxMomentumIter             100; // divergence indicator (too long solving U)
+
+// CONVERGENCE CHECK
+minMomentumResidual         1e-04; // convergnce indicator (low enough U residual)
+
+// Stop if change in Drage Coeff (Cd) stay within the Range averaged over a Window of steps (Converged)
+dragCoeffRange          1e-3; // (not changing too much)
+dragCoeffWindow         20; // steps
+
+// ***************************************************************************** //
+

@@ -13,7 +13,7 @@ FoamFile
     object      setFieldsDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-para {#include        "../Parameters"}
+para {#include        "../ParametersMesh"}
 
 defaultFieldValues
 (

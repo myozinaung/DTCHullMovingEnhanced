@@ -1,0 +1,7 @@
+To calcuate the mass (underwater volume)
+- Paraview can cut the hull model
+- Extract surface and save as new STL file
+
+- Blender can also cut the hull model?
+- Enclose using 3D print tool, calculate volume
+- Object >> Set Origin >> Center of Mass (volume)

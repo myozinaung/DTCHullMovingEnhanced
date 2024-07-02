@@ -39,6 +39,31 @@ geometry
             type wall;
         }
     }
+
+    wakeRegion
+    {
+        para {#include        "../ParametersMesh"}
+        type searchableBox;
+        min $para.wakeRegionMin;
+        max $para.wakeRegionMax;
+    }
+
+    appdRegion
+    {
+        para {#include        "../ParametersMesh"}
+        type searchableBox;
+        min $para.appdRegionMin;
+        max $para.appdRegionMax;
+    }
+
+    tunnelRegion
+    {
+        para {#include        "../ParametersMesh"}
+        type    searchableCylinder;
+        point1  $para.tunnelRegionPoint1;
+        point2  $para.tunnelRegionPoint2;
+        radius  $para.tunnelRegionRadius;
+    }
 }
 
 
@@ -133,6 +158,27 @@ castellatedMeshControls
             mode distance;
             levels $para/regionRefinementLevels;
         }
+
+        wakeRegion
+        {   
+            para {#include        "../ParametersMesh"}
+            mode inside;           
+            levels ((1 $para.wakeRegionRefinementLevels));
+        }
+
+        appdRegion
+        {   
+            para {#include        "../ParametersMesh"}
+            mode inside;           
+            levels ((1 $para.appdRegionRefinementLevels));
+        }
+
+        tunnelRegion
+        {   
+            para {#include        "../ParametersMesh"}
+            mode inside;           
+            levels ((1 $para.tunnelRegionRefinementLevels));
+        }
     }
 
 
@@ -144,7 +190,7 @@ castellatedMeshControls
     // section reachable from the locationInMesh is kept.
     // NOTE: This point should never be on a face, always inside a cell, even
     // after refinement.
-    locationInMesh (-0.7 0 0);
+    locationInMesh (-2.0 -0.1 -0.5);
 
 
     // Whether any faceZones (as specified in the refinementSurfaces)
@@ -166,7 +212,7 @@ snapControls
     //  or edge. True distance is this factor times local
     //  maximum edge length.
     //    tolerance 4.0;
-    tolerance 1.0;
+    tolerance 1.0; // original 1.0
 
     //- Number of mesh displacement relaxation iterations.
     nSolveIter 100;
@@ -175,7 +221,21 @@ snapControls
     //  before upon reaching a correct mesh.
     nRelaxIter 5;
 
+    // Feature snapping 
+    // Number of feature edge snapping iterations.
+    // Leave out altogether to disable.
     nFeatureSnapIter 10;
+
+    // // Detect (geometric only) features by sampling the surface
+    // // (default=false).
+    // implicitFeatureSnap false;
+
+    // // Use castellatedMeshControls::features (default = true)
+    // explicitFeatureSnap true;
+
+    // // Detect features between multiple surfaces
+    // // (only for explicitFeatureSnap, default = false)
+    // multiRegionFeatureSnap false;
 }
 
 
@@ -186,7 +246,7 @@ addLayersControls
     para {#include        "../ParametersMesh"}
     // Are the thickness parameters below relative to the undistorted
     // size of the refined cell outside layer (true) or absolute sizes (false).
-    relativeSizes true;
+    relativeSizes $para/relativeSizes;
 
     // Per final patch (so not geometry!) the layer information
     layers
@@ -202,12 +262,19 @@ addLayersControls
     // Expansion factor for layer mesh
     expansionRatio $para/expansionRatio;
 
+    // // Wanted thickness of the layer next to the wall.
+    // // If relativeSizes this is relative to undistorted size of cell
+    // // outside layer.;
+    // firstLayerThickness $para/firstLayerThickness;
 
     // Wanted thickness of final added cell layer. If multiple layers
     // is the thickness of the layer furthest away from the wall.
     // Relative to undistorted size of cell outside layer.
     // See relativeSizes parameter.
     finalLayerThickness $para/finalLayerThickness;
+
+    // // Total thickness of layers of points outside surface
+    // thickness $para/thickness;
 
     // Minimum thickness of cell layer. If for any reason layer
     // cannot be above minThickness do not add layer.
@@ -232,9 +299,9 @@ addLayersControls
     featureAngle $para/layerFeatureAngle;
 
     // Specified to be consistent with v1712 settings (see 1806 release notes)
-    mergePatchFacesAngle 60;    // featureAngle
-    layerTerminationAngle 30;   // 0.5*featureAngle
-    slipFeatureAngle 30;        // 0.5*featureAngle
+    mergePatchFacesAngle 60;    // featureAngle, ori 60
+    layerTerminationAngle 30;   // 0.5*featureAngle, ori 30
+    slipFeatureAngle 30;        // 0.5*featureAngle, ori 30
 
     // Maximum number of snapping relaxation iterations. Should stop
     // before upon reaching a correct mesh.
