@@ -110,20 +110,24 @@ maxLocalCells   5000000;
 maxGlobalCells  10000000;  // Max. Total Cells
 
 // Hull Refinement (Edge, Surface, Region)
+// EDGE Refinement
 featuresIncludedAngle     150;     // [deg] surfaceFeatureExtractDict
 edgeRefinementLevel       0;       // used with "hull.eMesh"
+
+// SURFACE Refinement
 surfaceRefinementLevel    (1 1);   // (min_level max_level)
 resolveFeatureAngle       45;      // [deg] smaller >> more feature
-regionRefinementLevels    ((0 0)); // ((distance1 refinement_level1) (distance2 refinement_level2)) e.g. ((0.05 3) (0.1 2) (0.2 2)); >> 3 levels
-nCellsBetweenLevels       3;
-
-// Prism Layers
+// Prism Layers on Hull Surface (need to use y+ here, 30 to 300 for wall functions)
 addLayers                 true;
 nPrismLayers              3;
 expansionRatio            1.5;
 finalLayerThickness       0.7;   // relative size to background mesh
 minLayerThickness         0.25;  // relative size to background mesh
 layerFeatureAngle         180;   // ori 60, 0 >> only add layers to flat surface
+
+// REGION Refinement (region around hull)
+regionRefinementLevels    ((0 0)); // ((distance1 refinement_level1) (distance2 refinement_level2)) e.g. ((0.05 3) (0.1 2) (0.2 2)); >> 3 levels
+nCellsBetweenLevels       3;
 
 // Additional Regions Refinements (e.g. Rudder region, Bow Thruster)
 // topoSet cannot be used for these regions, topoSet region must be cover the whole geometry
