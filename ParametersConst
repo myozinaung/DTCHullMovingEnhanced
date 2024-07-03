@@ -1,9 +1,6 @@
 //*********************** MOTION and DYNAMIC MESH (dynamicMeshDict) *********************** //
 // Get from Hydrostatics Analysis (Half Model), could vary with loading condition (draft, trim, heel)
 mass            412.73;   // [kg]
-// kxx
-// kyy
-// kzz
 Ixx             40;       // [kg.m^2] for Roll motion (not impoartant here)
 Iyy             921;      // [kg.m^2] for Pitch motion
 Izz             921;      // [kg.m^2] for Yaw motion (not important here)

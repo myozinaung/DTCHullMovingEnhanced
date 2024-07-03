@@ -1,0 +1,14 @@
+#!/bin/sh
+cd "${0%/*}" || exit                                # Run from this directory
+
+# Call automateParaView.py
+# "c:/Program Files/ParaView 5.11.1/bin/pvpython.exe" automateParaview.py hullDTC.stl 0.244
+/usr/bin/pvpython automateParaview.py hullDTC.stl 0.244
+
+# Call automateBlender.py
+# Obtain length and beam from bounding box
+python3 automateBlender.py --stl_filepath hull_clipped.stl --length 6.2 --beam 0.86 --rho_water 1000
+# make sure to use the correct python version for bpy
+
+#------------------------------------------------------------------------------
+# sudo update-alternatives --config python3
