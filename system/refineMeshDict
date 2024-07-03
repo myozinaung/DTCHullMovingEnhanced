@@ -14,7 +14,7 @@ FoamFile
     object          refineMeshDict;
 }
 
-set             c5;
+set             c2;
 
 coordinateSystem global;
 

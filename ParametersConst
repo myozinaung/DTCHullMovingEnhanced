@@ -1,10 +1,12 @@
 //*********************** MOTION and DYNAMIC MESH (dynamicMeshDict) *********************** //
 // Get from Hydrostatics Analysis (Half Model), could vary with loading condition (draft, trim, heel)
-mass            412.73;   // [kg]
-Ixx             40;       // [kg.m^2] for Roll motion (not impoartant here)
-Iyy             921;      // [kg.m^2] for Pitch motion
-Izz             921;      // [kg.m^2] for Yaw motion (not important here)
-centreOfMass    (2.929541 0 0.2); // [m] (x y z), (LCB 0 VCG)
+// mass            412.73;   // [kg]
+// Ixx             40;       // [kg.m^2] for Roll motion (not impoartant here)
+// Iyy             921;      // [kg.m^2] for Pitch motion
+// Izz             921;      // [kg.m^2] for Yaw motion (not important here)
+// centreOfMass    (2.929541 0 0.2); // [m] (x y z), (LCB 0 VCG)
+
+#include "hullMassInertiaCoG.txt"
 
 // Mesh Morphing Range for the moving body (meshes within the range will deform)
 innerDistance   0.3;

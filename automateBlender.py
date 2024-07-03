@@ -2,8 +2,8 @@
 # Values are calculated for a half hull geometry
 # Input: hull_clipped.stl, Length(for kyy & kzz), Beam (for kxx), rho_water
 # Output: Mass, Inertia, and CoB/CoG
-# Usage: "C:\Program Files\Blender Foundation\Blender 2.93\blender.exe" --background --python automateBlender.py -- --stl_filepath hull_clipped.stl --length 2.5 --beam 0.5 --rho_water 1025
-# Usage: python automateBlender.py --stl_filepath hull_clipped.stl --length 6.2 --beam 0.86 --rho_water 1000
+# Usage: "C:\Program Files\Blender Foundation\Blender 2.93\blender.exe" --background --python automateBlender.py -- --stl_filepath hull_clipped.stl --draft 0.244 --rho_water 998.2
+# Usage: python3 automateBlender.py --stl_filepath hullDTC.stl --draft 0.244 --rho_water 1000
 # Steps:
 # 1. Imported the clipped hull geometry (clipped and exported from ParaView)
 # 2. Made the hull manifold (using 3D Print Toolbox)
@@ -15,17 +15,64 @@ import bpy
 import bmesh
 import argparse
 
-def calculate_hull_properties(stl_filepath, Length, Beam, rho_water):
+def calculate_hull_properties(stl_filepath, draft, rho_water):
     # Open a new blank file (without default cube and camera)
     bpy.ops.wm.read_factory_settings(use_empty=True)
 
-    # Ensure the 3D Print Toolbox is enabled
+    # Ensure the 3D Print Toolbox is enabled (for making manifold)
     if not bpy.context.preferences.addons.get('object_print3d_utils'):
         bpy.ops.preferences.addon_enable(module='object_print3d_utils')
 
     # Import the STL file
     bpy.ops.import_mesh.stl(filepath=stl_filepath)
 
+    # Assuming the imported mesh is the only object in the scene
+    obj = bpy.context.selected_objects[0]
+    bpy.context.view_layer.objects.active = obj
+
+    ### Get the dimensions of the hull ###
+    # Get the dimensions of the hull
+    dim = obj.dimensions
+    print(f"Dimensions: {dim}")
+    Length = dim[0] * 0.94  # Length of the hull, LPP = 94% of the LOA
+    Beam   = dim[1]  # Beam of the hull
+    Depth  = dim[2]  # Depth of the hull
+    VCG    = Depth * 0.65  # Vertical Center of Gravity (VCG), Use the formulae for different types of vessels
+
+    # Get the bounding box of the hull
+    bbox = obj.bound_box
+    print(f"Bounding Box Min: {bbox[0][0]:.4f}, {bbox[0][1]:.4f}, {bbox[0][2]:.4f}")
+    print(f"Bounding Box Max: {bbox[6][0]:.4f}, {bbox[6][1]:.4f}, {bbox[6][2]:.4f}")
+    # Write bounds to file
+    with open('hullBounds.txt', 'w') as f:
+        f.write(f"hullXmin  {bbox[0][0]:.4f};\n")
+        f.write(f"hullXmax  {bbox[6][0]:.4f};\n")
+        f.write(f"hullYmin  {bbox[0][1]:.4f};\n")
+        f.write(f"hullYmax  {bbox[6][1]:.4f};\n")
+        f.write(f"hullZmin  {bbox[0][2]:.4f};\n")
+        f.write(f"hullZmax  {bbox[6][2]:.4f};\n")
+        f.write(f"zWL       {draft:.4f};\n")
+    print(f"Results written to hullBounds.txt")
+
+    ### Clip the hull: Bisect the mesh at the draft ###
+    # Enter edit mode
+    bpy.ops.object.mode_set(mode='EDIT')
+    # Create a bmesh object from the mesh
+    bm = bmesh.from_edit_mesh(obj.data)
+
+    # Bisect the mesh using the z-plane
+    bpy.ops.mesh.bisect(
+        plane_co=(0, 0, draft),
+        plane_no=(0, 0, 1),
+        use_fill=False,
+        clear_outer=True
+    )
+    # Update the mesh and exit edit mode
+    bmesh.update_edit_mesh(obj.data)
+    bpy.ops.object.mode_set(mode='OBJECT')
+
+
+    ### Make manifold and calculate volume ###
     # Ensure we have the object selected
     obj = bpy.context.selected_objects[0]
 
@@ -41,9 +88,9 @@ def calculate_hull_properties(stl_filepath, Length, Beam, rho_water):
     vol = bm.calc_volume()
     bm.free()
 
+    ### Get the Center of Volume ###
     # Set Origin to Center of Mass (Volume)
     bpy.ops.object.origin_set(type='ORIGIN_CENTER_OF_VOLUME', center='BOUNDS')
-
     # Get the Transform X, Y, Z
     transform_x = obj.location.x
     transform_y = obj.location.y
@@ -63,26 +110,25 @@ def calculate_hull_properties(stl_filepath, Length, Beam, rho_water):
     print(f"Mass: {mass:.4f}")
     print(f"Ixx: {Ixx:.4f}, Iyy: {Iyy:.4f}, Izz: {Izz:.4f}")
     print(f"CoB X: {transform_x:.4f}, Y: {transform_y:.4f}, Z: {transform_z:.4f}")
+    print(f"CoG X: {transform_x:.4f}, Y: {0}, Z: {VCG:.4f}")
     # Write results to file
     with open("hullMassInertiaCoG.txt", "w") as f:
         f.write(f"mass            {mass:.2f};   // [kg]\n")
         f.write(f"Ixx             {Ixx:.2f};       // [kg.m^2] for Roll motion (not important here)\n")
         f.write(f"Iyy             {Iyy:.2f};      // [kg.m^2] for Pitch motion\n")
         f.write(f"Izz             {Izz:.2f};      // [kg.m^2] for Yaw motion (not important here)\n")
-        f.write(f"centreOfMass    ({transform_x:.6f} {transform_y:.6f} {transform_z:.6f}); // [m] (x y z), (LCB 0 VCG)\n")
-
+        f.write(f"centreOfMass    ({transform_x:.6f} {0} {VCG:.6f}); // [m] (x y z), (LCB 0 VCG)\n")
     print(f"Results written to hullMassInertiaCoG.txt")
 
 if __name__ == "__main__":
     # Argument parser for input arguments
     parser = argparse.ArgumentParser(description="Calculate hull properties")
     parser.add_argument("--stl_filepath", type=str, required=True, help="Path to the STL file")
-    parser.add_argument("--length", type=float, required=True, help="Length of the hull")
-    parser.add_argument("--beam", type=float, required=True, help="Beam of the hull")
+    parser.add_argument("--draft", type=float, required=True, help="Draft of the hull")
     parser.add_argument("--rho_water", type=float, default=1000, help="Density of water in kg/m^3")
 
     args = parser.parse_args()
 
-    calculate_hull_properties(args.stl_filepath, args.length, args.beam, args.rho_water)
+    calculate_hull_properties(args.stl_filepath, args.draft, args.rho_water)
 
 

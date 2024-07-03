@@ -5,6 +5,8 @@ cd "${0%/*}" || exit                                # Run from this directory
 # create foam file for Paraview
 touch case.foam
 
+python3 automateBlender.py --stl_filepath hullDTC.stl --draft 0.244 --rho_water 1000
+
 # copy DTC hull STL to triSurface folder
 mkdir -p constant/triSurface
 cp hull.stl.gz constant/triSurface/
