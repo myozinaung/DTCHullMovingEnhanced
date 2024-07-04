@@ -27,9 +27,9 @@ dHullZ    #eval{$hullZmax - $hullZmin};  // hull depth
 // xmin = -4Lpp, xmax = Lpp + 1.5Lpp
 // ymin = -3Lpp, ymax = 0
 // zmin = -2.5Lpp, zmax = 1.0Lpp
-xmin    #eval{floor(-4*$dHullX)};    xmax    #eval{ceil(2.5*$dHullX)};     xcells  #eval{round($xmax - $xmin)};     // no. of celles between xmin and xmax (assume max 1m cell size)
+xmin    #eval{floor($hullXmin - 4*$dHullX)};    xmax    #eval{ceil($hullXmax + 1.5*$dHullX)};     xcells  #eval{round($xmax - $xmin)};     // no. of celles between xmin and xmax (assume max 1m cell size)
 ymin    #eval{floor(-3*$dHullX)};    ymax    0;                            ycells  #eval{round($ymax - $ymin)};
-zmin    #eval{floor(-2.5*$dHullX)};  zmax    #eval{ceil(1.0*$dHullX)};
+zmin    #eval{floor($hullZmin - 2.5*$dHullX)};  zmax    #eval{ceil($hullZmax + 1.0*$dHullX)};
 
 // Z-dir Refinement
 nCellFS    4;          // no. of refined cells just above and below Free Surface

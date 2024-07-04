@@ -5,10 +5,12 @@
 # Usage: "C:\Program Files\Blender Foundation\Blender 2.93\blender.exe" --background --python automateBlender.py -- --stl_filepath hull_clipped.stl --draft 0.244 --rho_water 998.2
 # Usage: python3 automateBlender.py --stl_filepath hullDTC.stl --draft 0.244 --rho_water 1000
 # Steps:
-# 1. Imported the clipped hull geometry (clipped and exported from ParaView)
-# 2. Made the hull manifold (using 3D Print Toolbox)
-# 3. Calculated the volume of the hull
-# 4. Set the origin to the center of mass (volume) >> get the CoG as Transform X, Y, Z
+# 1. Import STL hull geometry
+# 2. Get the dimensions and bounding box of the hull
+# 3. Bisect the hull at the draft
+# 4. Made the clipped hull manifold (using 3D Print Toolbox)
+# 5. Calculated the volume of the clipped hull
+# 6. Set the origin to the center of mass (volume) >> get the CoG as Transform X, Y, Z
 
 # pip install bpy
 import bpy
