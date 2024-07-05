@@ -3,7 +3,7 @@
 # Input: hull_clipped.stl, Length(for kyy & kzz), Beam (for kxx), rho_water
 # Output: Mass, Inertia, and CoB/CoG
 # Usage: "C:\Program Files\Blender Foundation\Blender 2.93\blender.exe" --background --python automateBlender.py -- --stl_filepath hull_clipped.stl --draft 0.244 --rho_water 998.2
-# Usage: python3 automateBlender.py --stl_filepath hullDTC.stl --draft 0.244 --rho_water 1000
+# Usage: python3 automateBlender.py hullDTC.stl --draft 0.244 --rho_water 1000
 # Steps:
 # 1. Import STL hull geometry
 # 2. Get the dimensions and bounding box of the hull
@@ -125,7 +125,7 @@ def calculate_hull_properties(stl_filepath, draft, rho_water):
 if __name__ == "__main__":
     # Argument parser for input arguments
     parser = argparse.ArgumentParser(description="Calculate hull properties")
-    parser.add_argument("--stl_filepath", type=str, required=True, help="Path to the STL file")
+    parser.add_argument("stl_filepath", type=str, help="Path to the STL file")
     parser.add_argument("--draft", type=float, required=True, help="Draft of the hull")
     parser.add_argument("--rho_water", type=float, default=1000, help="Density of water in kg/m^3")
 

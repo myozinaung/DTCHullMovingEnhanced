@@ -7,3 +7,5 @@ TODO
 - IGES surfaces to STL surface mesh --> GMSH
 - STL surface mesh to STL Manifold --> Blender
 - STL Manifold: clip and calculate mass properties --> Blender
+
+- SLOME, GMSH, Blender, MeshLab, MeshMixer, FreeCAD

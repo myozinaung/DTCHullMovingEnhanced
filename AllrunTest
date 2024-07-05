@@ -6,7 +6,7 @@ cd "${0%/*}" || exit                                # Run from this directory
 touch case.foam
 
 
-runApplication checkMesh -allGeometry -allTopology -writeAllFields -writeSets vtk
+surfaceMeshTriangulate kcs_bothHalves.stl
 
 
 #------------------------------------------------------------------------------
