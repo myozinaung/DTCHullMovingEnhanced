@@ -5,11 +5,17 @@ cd "${0%/*}" || exit                                # Run from this directory
 # create foam file for Paraview
 touch case.foam
 
-python3 automateBlender.py --stl_filepath hullDTC.stl --draft 0.244 --rho_water 1000
+# Create variables
+hull="kcs_SB.stl"
+draft=0.3418
+rho_water=1000
+
+# python3 automateBlender.py hullDTC.stl --draft 0.244 --rho_water 1000
+python3 automateBlender.py $hull --draft $draft --rho_water $rho_water
 
 # copy DTC hull STL to triSurface folder
 mkdir -p constant/triSurface
-cp hull.stl.gz constant/triSurface/
+cp $hull constant/triSurface/hull.stl
 
 # Generate hull.eMesh file (edge features)
 runApplication surfaceFeatureExtract
@@ -52,10 +58,10 @@ runParallel redistributePar -reconstruct -constant -overwrite # (not work in OF1
 
 rm -rf processor* # clean decomposed mesh not to interfere with interFoam decomposition
 
-runApplication checkMesh -allGeometry -allTopology -writeAllFields -writeSets vtk
+# runApplication checkMesh -allGeometry -allTopology -writeAllFields -writeSets vtk
 
-# for ParaView mesh quality visualization
-runApplication setsToZones -noFlipMap -time 3 # windows ParaView reader cannot load sets, therefore first convert sets to zones
+# # for ParaView mesh quality visualization
+# runApplication setsToZones -noFlipMap -time 3 # windows ParaView reader cannot load sets, therefore first convert sets to zones
 
-./AllCreateParametersFiles
+# ./AllCreateParametersFiles
 #------------------------------------------------------------------------------

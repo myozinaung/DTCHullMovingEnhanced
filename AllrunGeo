@@ -11,8 +11,16 @@ cd "${0%/*}" || exit                                # Run from this directory
 # python3 automateBlender.py --stl_filepath jbc.stl --draft 0.244 --rho_water 1000
 # make sure to use the correct python version for bpy
 
-python3 IGStoSTL.py dtc.igs --scale 1
-python3 STLSurfaceToSolid.py hull_surface.stl
+# python3 IGStoSTL.py dtc.igs --scale 1
+# python3 STLSurfaceToSolid.py hull_surface.stl
+
+# # Create variables (no space around the equal sign)
+hull="kcs_SB.stl"
+draft=0.3418
+rho_water=1000
+
+# python3 automateBlender.py hullDTC.stl --draft 0.244 --rho_water 1000
+python3 automateBlender.py $hull --draft $draft --rho_water $rho_water
 
 #------------------------------------------------------------------------------
 # sudo update-alternatives --config python3
