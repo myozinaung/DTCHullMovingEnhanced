@@ -1,10 +1,10 @@
-
+# Create a Watertight Hull (Solid STL) using Surface STL file
 # pip install bpy
 import bpy
 import bmesh
 import argparse
 
-def calculate_hull_properties(stl_filepath):
+def calculate_hull_properties(stl_filepath, scale_factor):
     # Open a new blank file (without default cube and camera)
     bpy.ops.wm.read_factory_settings(use_empty=True)
 
@@ -30,7 +30,8 @@ def calculate_hull_properties(stl_filepath):
     bpy.ops.mesh.print3d_clean_distorted()
     
     # Transform by scale_factor
-    scale_factor = 1/31.599
+    # scale_factor = 1/31.599 # KCS
+    scale_factor = 1/scale_factor
     bpy.ops.transform.resize(value=(scale_factor, scale_factor, scale_factor))
 
     bpy.ops.mesh.print3d_export()
@@ -39,9 +40,10 @@ if __name__ == "__main__":
     # Argument parser for input arguments
     parser = argparse.ArgumentParser(description="Calculate hull properties")
     parser.add_argument("stl_filepath", type=str, help="Path to the STL file")
+    parser.add_argument("--scale_factor", type=float, default=1, help="Scale factor for the STL file")
 
     args = parser.parse_args()
 
-    calculate_hull_properties(args.stl_filepath)
+    calculate_hull_properties(args.stl_filepath, args.scale_factor)
 
 

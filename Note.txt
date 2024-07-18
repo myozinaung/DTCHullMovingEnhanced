@@ -9,3 +9,15 @@ TODO
 - STL Manifold: clip and calculate mass properties --> Blender
 
 - SLOME, GMSH, Blender, MeshLab, MeshMixer, FreeCAD
+
+STEP1: IGES to STL surface mesh
+- SLOME: IGES to STL surface mesh
+CMD >> C:\SALOME-9.12.0\W64\Python\python3.exe salomeIGSToSTLSurf.py
+
+STEP2: STL surface mesh to STL Manifold
+- Blender: STL surface to STL Manifold
+CMD >> python3 blenderMakeSolid.py hull_open.stl
+
+STEP3: STL Manifold: clip and calculate mass properties
+- Blender: clip and calculate mass properties
+CMD >> python3 blenderHullProperties.py 
