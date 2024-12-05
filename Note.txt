@@ -21,3 +21,9 @@ CMD >> python3 blenderMakeSolid.py hull_open.stl
 STEP3: STL Manifold: clip and calculate mass properties
 - Blender: clip and calculate mass properties
 CMD >> python3 blenderHullProperties.py 
+(Bounding Box for Mesh and Hull Properties for Rigid Body Motion)
+Outputs >> hullBounds.txt and hullMassInertiaCoG.txt
+
+
+Dependencies
+- Install python 3.11.* and bpy (blender python)

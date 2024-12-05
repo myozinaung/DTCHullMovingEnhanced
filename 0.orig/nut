@@ -42,7 +42,7 @@ boundaryField
 
     hull
     {
-        para {#include        "../Parameters"}
+        para {#include        "../ParametersConst"}
         type            nutkRoughWallFunction;
         Ks              uniform $para/sandGrainHeight;
         Cs              uniform $para/roughnessConst;

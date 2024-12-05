@@ -21,22 +21,20 @@ def calculate_hull_properties(stl_filepath, draft, rho_water):
     # Open a new blank file (without default cube and camera)
     bpy.ops.wm.read_factory_settings(use_empty=True)
 
-    # Ensure the 3D Print Toolbox is enabled (for making manifold)
-    if not bpy.context.preferences.addons.get('object_print3d_utils'):
-        bpy.ops.preferences.addon_enable(module='object_print3d_utils')
-
     # Import the STL file
-    bpy.ops.import_mesh.stl(filepath=stl_filepath)
+    bpy.ops.wm.stl_import(filepath=stl_filepath)
+    obj = bpy.context.selected_objects[0]  # Reference to the imported object
 
-    # Assuming the imported mesh is the only object in the scene
-    obj = bpy.context.selected_objects[0]
+    # Ensure the object is selected
     bpy.context.view_layer.objects.active = obj
+    bpy.ops.object.select_all(action='DESELECT')
+    obj.select_set(True)
 
     ### Get the dimensions of the hull ###
     # Get the dimensions of the hull
     dim = obj.dimensions
     print(f"Dimensions: {dim}")
-    Length = dim[0] * 0.94  # Length of the hull, LPP = 94% of the LOA
+    Length = dim[0] * 0.94  # Length of the hull, LPP = 94% of the LOA for Inertia calculation
     Beam   = dim[1]  # Beam of the hull
     Depth  = dim[2]  # Depth of the hull
     VCG    = Depth * 0.65  # Vertical Center of Gravity (VCG), Use the formulae for different types of vessels
@@ -50,39 +48,33 @@ def calculate_hull_properties(stl_filepath, draft, rho_water):
         f.write(f"hullXmin  {bbox[0][0]:.4f};\n")
         f.write(f"hullXmax  {bbox[6][0]:.4f};\n")
         f.write(f"hullYmin  {bbox[0][1]:.4f};\n")
-        f.write(f"hullYmax  {bbox[6][1]:.4f};\n")
+        f.write(f"hullYmax  {0.0};\n") # Assuming the hull is symmetric about Y-axis
         f.write(f"hullZmin  {bbox[0][2]:.4f};\n")
         f.write(f"hullZmax  {bbox[6][2]:.4f};\n")
         f.write(f"zWL       {draft:.4f};\n")
     print(f"Results written to hullBounds.txt")
 
     ### Clip the hull: Bisect the mesh at the draft ###
-    # Enter edit mode
+    # Switch to Edit Mode
     bpy.ops.object.mode_set(mode='EDIT')
-    # Create a bmesh object from the mesh
-    bm = bmesh.from_edit_mesh(obj.data)
 
-    # Bisect the mesh using the z-plane
+    # Select all geometry mesh
+    bpy.ops.mesh.select_all(action='SELECT')
+
+    # Perform the bisect operation
     bpy.ops.mesh.bisect(
-        plane_co=(0, 0, draft),
-        plane_no=(0, 0, 1),
-        use_fill=False,
-        clear_outer=True
+        plane_co=(0, 0, 0.244),    # Point on the Z-plane (origin)
+        plane_no=(0, 0, 1),    # Normal vector of the plane (along Z-axis)
+        use_fill=True,         # Fill the cut plane
+        clear_inner=False,     # Keep the lower part
+        clear_outer=True       # Remove the upper part
     )
-    # Update the mesh and exit edit mode
-    bmesh.update_edit_mesh(obj.data)
+
+    # Return to Object Mode
     bpy.ops.object.mode_set(mode='OBJECT')
 
-
-    ### Make manifold and calculate volume ###
-    # Ensure we have the object selected
-    obj = bpy.context.selected_objects[0]
-
-    # Make Manifold using 3D Print Toolbox
-    bpy.context.view_layer.objects.active = obj
-    bpy.ops.object.mode_set(mode='EDIT')
-    bpy.ops.mesh.print3d_clean_non_manifold()
-    bpy.ops.object.mode_set(mode='OBJECT')
+    # Export the modified object as an STL file
+    bpy.ops.wm.stl_export(filepath="hull_underwater.stl")
 
     # Calculate the volume of the object
     bm = bmesh.new()

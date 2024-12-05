@@ -1,14 +1,14 @@
 //**************** MESHING (blockMeshDict) ************************************************* //
 // Hull Bounding Box (Half Hull)
-// hullXmin  -0.113504;
-// hullYmin  -0.429252;
-// hullZmin  0;
-// hullXmax   6.16209;
-// hullYmax   0;
-// hullZmax   0.572322;
-// zWL       0.244;     // Waterline or Free Surface Height
+hullXmin  -0.113504;
+hullYmin  -0.429252;
+hullZmin  0;
+hullXmax   6.16209;
+hullYmax   0;
+hullZmax   0.572322;
+zWL       0.244;     // Waterline or Free Surface Height
 
-#include "hullBounds.txt"
+// #include "hullBounds.txt"
 
 // hullXmin   0;
 // hullYmin  -0.45555;

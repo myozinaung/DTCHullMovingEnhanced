@@ -1,17 +1,20 @@
 #!/bin/sh
 cd "${0%/*}" || exit                                # Run from this directory
 . ${WM_PROJECT_DIR:?}/bin/tools/RunFunctions        # Tutorial run functions
+
+export OMPI_ALLOW_RUN_AS_ROOT=1
+export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
 #------------------------------------------------------------------------------
 # create foam file for Paraview
 touch case.foam
 
 # Create variables
-hull="kcs_SB.stl"
-draft=0.3418
+hull="hullDTC.stl" # preprocessed watertight solid hull
+draft=0.244
 rho_water=1000
 
-# python3 automateBlender.py hullDTC.stl --draft 0.244 --rho_water 1000
-python3 automateBlender.py $hull --draft $draft --rho_water $rho_water
+# python3 blenderHullProperties.py hullDTC.stl --draft 0.244 --rho_water 1000
+python3 blenderHullProperties.py $hull --draft $draft --rho_water $rho_water
 
 # copy DTC hull STL to triSurface folder
 mkdir -p constant/triSurface
