@@ -1,5 +1,6 @@
 #!/bin/sh
 cd "${0%/*}" || exit                                # Run from this directory
+. ${WM_PROJECT_DIR:?}/bin/tools/RunFunctions        # Tutorial run functions
 
 # Call automateParaView.py
 # "c:/Program Files/ParaView 5.11.1/bin/pvpython.exe" automateParaview.py hullDTC.stl 0.244
@@ -14,13 +15,13 @@ cd "${0%/*}" || exit                                # Run from this directory
 # python3 IGStoSTL.py dtc.igs --scale 1
 # python3 STLSurfaceToSolid.py hull_surface.stl
 
-# # Create variables (no space around the equal sign)
-hull="kcs_SB.stl"
-draft=0.3418
-rho_water=1000
+# Create variables
+hull="w3.stl" # preprocessed watertight solid hull
+draft=0.0928 # 0.0928 for ori
+rho_water=997
 
-# python3 automateBlender.py hullDTC.stl --draft 0.244 --rho_water 1000
-python3 automateBlender.py $hull --draft $draft --rho_water $rho_water
+# python3 blenderHullProperties.py hullDTC.stl --draft 0.244 --rho_water 1000
+python3 blenderHullProperties.py $hull --draft $draft --rho_water $rho_water
 
 #------------------------------------------------------------------------------
 # sudo update-alternatives --config python3

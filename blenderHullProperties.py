@@ -63,7 +63,7 @@ def calculate_hull_properties(stl_filepath, draft, rho_water):
 
     # Perform the bisect operation
     bpy.ops.mesh.bisect(
-        plane_co=(0, 0, 0.244),    # Point on the Z-plane (origin)
+        plane_co=(0, 0, draft),    # Point on the Z-plane (origin)
         plane_no=(0, 0, 1),    # Normal vector of the plane (along Z-axis)
         use_fill=True,         # Fill the cut plane
         clear_inner=False,     # Keep the lower part
@@ -83,10 +83,10 @@ def calculate_hull_properties(stl_filepath, draft, rho_water):
     bm.free()
 
     ### Get the Center of Volume ###
-    # Set Origin to Center of Mass (Volume)
+    # Set Origin to Center of Mass (Volume) just get the CoB
     bpy.ops.object.origin_set(type='ORIGIN_CENTER_OF_VOLUME', center='BOUNDS')
     # Get the Transform X, Y, Z
-    transform_x = obj.location.x
+    transform_x = LCB = obj.location.x # LCB or LCG
     transform_y = obj.location.y
     transform_z = obj.location.z
 

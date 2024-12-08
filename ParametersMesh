@@ -1,14 +1,15 @@
 //**************** MESHING (blockMeshDict) ************************************************* //
 // Hull Bounding Box (Half Hull)
-hullXmin  -0.113504;
-hullYmin  -0.429252;
-hullZmin  0;
-hullXmax   6.16209;
-hullYmax   0;
-hullZmax   0.572322;
-zWL       0.244;     // Waterline or Free Surface Height
+// hullXmin  -0.113504;
+// hullYmin  -0.429252;
+// hullZmin  0;
+// hullXmax   6.16209;
+// hullYmax   0;
+// hullZmax   0.572322;
+// zWL       0.244;     // Waterline or Free Surface Height
 
-// #include "hullBounds.txt"
+#include "hullBounds.txt"
+
 
 // hullXmin   0;
 // hullYmin  -0.45555;
@@ -23,25 +24,34 @@ dHullX    #eval{$hullXmax - $hullXmin};  // hull length (~Lpp)
 dHullY    #eval{$hullYmax - $hullYmin};  // hull hlaf-breadth
 dHullZ    #eval{$hullZmax - $hullZmin};  // hull depth
 
+meshFineness  #eval{6/$dHullX};  // mesh finess (cell size) relative to hull length (assume DTC is 6m with max cell size 1m)
+
 // XYZ Bounds of Rectangular Block
 // xmin = -4Lpp, xmax = Lpp + 1.5Lpp
 // ymin = -3Lpp, ymax = 0
 // zmin = -2.5Lpp, zmax = 1.0Lpp
-xmin    #eval{floor($hullXmin - 4*$dHullX)};    xmax    #eval{ceil($hullXmax + 1.5*$dHullX)};     xcells  #eval{round($xmax - $xmin)};     // no. of celles between xmin and xmax (assume max 1m cell size)
-ymin    #eval{floor(-3*$dHullX)};    ymax    0;                            ycells  #eval{round($ymax - $ymin)};
-zmin    #eval{floor($hullZmin - 2.5*$dHullX)};  zmax    #eval{ceil($hullZmax + 1.0*$dHullX)};
+xmin    #eval{floor($hullXmin - 4*$dHullX)};    
+xmax    #eval{ceil($hullXmax + 1.5*$dHullX)};
+ymin    #eval{floor(-3*$dHullX)};    
+ymax    0;
+zmin    #eval{floor($hullZmin - 2.5*$dHullX)};  
+zmax    #eval{ceil($hullZmax + 1.0*$dHullX)};
+
+xcells  #eval{round(($xmax - $xmin)*$meshFineness)};     // no. of celles between xmin and xmax (assume max 1m cell size)
+ycells  #eval{round(($ymax - $ymin)*$meshFineness)};     // no. of celles between ymin and ymax
 
 // Z-dir Refinement
-nCellFS    4;          // no. of refined cells just above and below Free Surface
-FSCellThickness 0.014; // Free Surface Cell Thickness
+nCellFS    #eval{round(4*$meshFineness)};          // no. of refined cells just above and below Free Surface
+FSCellThickness #eval{0.014/$meshFineness}; // Free Surface Cell Thickness
 
 // Cell thicknesses in Z-dir
-dCellz01     0.3; // height of cell between z0 and z1
-dCellz12     0.025;
+dCellz01     #eval{0.300/$meshFineness}; // height of cell between z0 and z1
+dCellz12     #eval{0.025/$meshFineness};
 dCellz23     $FSCellThickness;
-dCellz34     $FSCellThickness;;
-dCellz45     0.032;
-dCellz56     0.180;
+dCellz34     $FSCellThickness;
+dCellz45     #eval{0.032/$meshFineness};
+dCellz56     #eval{0.180/$meshFineness};
+// Cell thicknesses should be relative to the hull dimensions and mesh resolution (coarse, medium, fine)
 
 z0   $zmin;
 z1   #eval{$hullZmin - 1.80*$dHullZ};  // same as zminC3

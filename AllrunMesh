@@ -5,17 +5,18 @@ cd "${0%/*}" || exit                                # Run from this directory
 # To allow OpenMPI to run as root
 export OMPI_ALLOW_RUN_AS_ROOT=1
 export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
-#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------#
 # create foam file for Paraview
 touch case.foam
-
+#------------------------------------------------------------------------------#
 # Create variables
-hull="hullDTC.stl" # preprocessed watertight solid hull
-draft=0.244
-rho_water=1000
+hull="w3.stl" # preprocessed watertight solid hull
+draft=0.065 # 0.0928 for ori
+rho_water=997
 
 # python3 blenderHullProperties.py hullDTC.stl --draft 0.244 --rho_water 1000
 python3 blenderHullProperties.py $hull --draft $draft --rho_water $rho_water
+#------------------------------------------------------------------------------#
 
 # copy DTC hull STL to triSurface folder
 mkdir -p constant/triSurface
@@ -62,10 +63,10 @@ runParallel redistributePar -reconstruct -constant -overwrite # (not work in OF1
 
 rm -rf processor* # clean decomposed mesh not to interfere with interFoam decomposition
 
-# runApplication checkMesh -allGeometry -allTopology -writeAllFields -writeSets vtk
+runApplication checkMesh -allGeometry -allTopology -writeAllFields -writeSets vtk
 
 # # for ParaView mesh quality visualization
-# runApplication setsToZones -noFlipMap -time 3 # windows ParaView reader cannot load sets, therefore first convert sets to zones
+runApplication setsToZones -noFlipMap -time 3 # windows ParaView reader cannot load sets, therefore first convert sets to zones
 
 # ./AllCreateParametersFiles
 #------------------------------------------------------------------------------

@@ -2,6 +2,7 @@ TODO
 - To handle compressed stl file
 - include variable directly, // e.g., value           #include        "hullBounds.zWL";
 - single combined log file for loop application
+- Add add initial Sinkage and Trim (need to update postprocess)
 
 
 - IGES surfaces to STL surface mesh --> GMSH
