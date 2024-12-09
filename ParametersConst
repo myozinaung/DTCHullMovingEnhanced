@@ -21,7 +21,7 @@ centreOfMass    (0.589 0 0.156); // [m] (x y z), (LCB 0 VCG)
 innerDistance   0.02; // should be relative to the size of model
 outerDistance   0.6;
 meshDiffusivity inverseVolume (hull); // inverseDistance, inverseVolume, uniform, quadratic inverseDistance
-translationDamperCoeff  8596;
+translationDamperCoeff  8596; // should be relative to the size of model
 rotationDamperCoeff     11586;
 
 //*********************** TURBULENCE MODEL and WALL FUNCTIONS *********************** //

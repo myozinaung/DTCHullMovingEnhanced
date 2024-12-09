@@ -46,6 +46,7 @@ boundaryField
     hull
     {
         type            zeroGradient;
+        // type            interfaceCompression; // W3 Planing Hull
     }
 }
 

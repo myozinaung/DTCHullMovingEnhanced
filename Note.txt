@@ -31,3 +31,25 @@ Outputs >> hullBounds.txt and hullMassInertiaCoG.txt
 
 Dependencies
 - Install python 3.11.* and bpy (blender python)
+
+
+
+INPUT (after preprocessing)
+Geometry and Operating Conditions
+- hull.stl (watertight)
+- draft
+- pre trim and sinkage (default 0)
+- Mass and CoG if known (if not, calculated using blender)
+- speed (model [m/s] or full [knot] with scale(sizes))
+
+Simulation Controls
+- Time, Time Step, Write Controls
+- Stopping Criteria
+
+Mesh Refinement Controls
+- Fineness
+- Regional Refinement
+- WallFunction or Not
+
+Rigid Body Motion & Dynamic Mesh
+- 

@@ -17,8 +17,22 @@ cd "${0%/*}" || exit                                # Run from this directory
 
 # Create variables
 hull="w3.stl" # preprocessed watertight solid hull
-draft=0.0928 # 0.0928 for ori
+draft=0.108 # 0.0928 for ori
 rho_water=997
+preTrimAngle =-3.485 # [deg] positive angle --> bow down
+preSinkage = 0.045 # [m] model scale sinkage
+
+# Copy hull surface from resources folder
+mkdir -p constant/triSurface
+cp hull.stl constant/triSurface/
+
+# Pre-trimming and Sinkage (# positive angle --> bow down, model scale sinkage)
+runApplication surfaceTransformPoints \
+    -origin '(0.586 0 0.156)' \ 
+    -rotate-angle '((0 1 0) $preTrimAngle)' \
+    -translate '(0 0 $preSinkage)' \
+    $hull constant/triSurface/hull.stl
+# This should be moved to blender since CoG is estimated using blender
 
 # python3 blenderHullProperties.py hullDTC.stl --draft 0.244 --rho_water 1000
 python3 blenderHullProperties.py $hull --draft $draft --rho_water $rho_water
