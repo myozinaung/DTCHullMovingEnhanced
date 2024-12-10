@@ -2,40 +2,26 @@
 cd "${0%/*}" || exit                                # Run from this directory
 . ${WM_PROJECT_DIR:?}/bin/tools/RunFunctions        # Tutorial run functions
 
-# Call automateParaView.py
-# "c:/Program Files/ParaView 5.11.1/bin/pvpython.exe" automateParaview.py hullDTC.stl 0.244
-# /usr/bin/pvpython automateParaview.py hullDTC.stl 0.244
-
-# Call automateBlender.py
-# Obtain length and beam from bounding box
-# python3 automateBlender.py --stl_filepath hullDTC.stl --draft 0.244 --rho_water 1000
-# python3 automateBlender.py --stl_filepath jbc.stl --draft 0.244 --rho_water 1000
-# make sure to use the correct python version for bpy
-
-# python3 IGStoSTL.py dtc.igs --scale 1
-# python3 STLSurfaceToSolid.py hull_surface.stl
-
 # Create variables
-hull="w3.stl" # preprocessed watertight solid hull
-draft=0.108 # 0.0928 for ori
-rho_water=997
-preTrimAngle =-3.485 # [deg] positive angle --> bow down
-preSinkage = 0.045 # [m] model scale sinkage
+# hull="w3_orig.stl" # preprocessed watertight solid hull
+# draft=0.108 # 0.0928 for ori
+# rho_water=997
+# pre_trim_angle=3.485 # [deg] positive angle --> bow up
+# pre_sinkage=0.045 # [m] model scale sinkage -ve --> sinkage (downward)
 
-# Copy hull surface from resources folder
-mkdir -p constant/triSurface
-cp hull.stl constant/triSurface/
-
-# Pre-trimming and Sinkage (# positive angle --> bow down, model scale sinkage)
-runApplication surfaceTransformPoints \
-    -origin '(0.586 0 0.156)' \ 
-    -rotate-angle '((0 1 0) $preTrimAngle)' \
-    -translate '(0 0 $preSinkage)' \
-    $hull constant/triSurface/hull.stl
-# This should be moved to blender since CoG is estimated using blender
+hull="hullDTC.stl" # preprocessed watertight solid hull
+draft=0.244 # 0.0928 for ori
+rho_water=998
+pre_trim_angle=0 # [deg] positive angle --> bow up
+pre_sinkage=0 # [m] model scale sinkage -ve --> sinkage (downward)
 
 # python3 blenderHullProperties.py hullDTC.stl --draft 0.244 --rho_water 1000
 python3 blenderHullProperties.py $hull --draft $draft --rho_water $rho_water
+# python3 blenderHullProperties.py $hull --draft $draft --rho_water $rho_water --trim_angle $pre_trim_angle --sinkage $pre_sinkage
+# python3 blenderHullProperties.py $hull --draft $draft --rho_water $rho_water --trim_angle $pre_trim_angle --sinkage $pre_sinkage --CoG 0.586 0 0.156
+# Copy hull surface from resources folder
+mkdir -p constant/triSurface
+cp hull.stl constant/triSurface/
 
 #------------------------------------------------------------------------------
 # sudo update-alternatives --config python3

@@ -90,6 +90,8 @@ def calculate_hull_properties(stl_filepath, draft, rho_water):
     transform_y = obj.location.y
     transform_z = obj.location.z
 
+    CoG = (LCB, 0, VCG)
+
     # Calculate mass, inertia, and moments
     mass = vol * rho_water / 2  # mass of half hull
 
@@ -114,15 +116,70 @@ def calculate_hull_properties(stl_filepath, draft, rho_water):
         f.write(f"centreOfMass    ({transform_x:.6f} {0} {VCG:.6f}); // [m] (x y z), (LCB 0 VCG)\n")
     print(f"Results written to hullMassInertiaCoG.txt")
 
+    return CoG
+
+def rotate_and_translate(stl_filepath, draft, CoG, trim_angle, sinkage):
+    # Open a new blank file (without default cube and camera)
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+
+    # Import the STL file
+    bpy.ops.wm.stl_import(filepath=stl_filepath)
+    obj = bpy.context.selected_objects[0]  # Reference to the imported object
+
+    # Ensure the object is selected
+    bpy.context.view_layer.objects.active = obj
+    bpy.ops.object.select_all(action='DESELECT')
+    obj.select_set(True)
+
+    # Rotate the hull by the trim angle [deg] about the Y-axis at the CoG
+    trim_angle_rad = trim_angle * 3.14159 / 180  # Convert to radians
+    bpy.ops.transform.rotate(value=trim_angle_rad, orient_axis='Y', orient_type='LOCAL', center_override=CoG)
+
+    # Translate the hull by the sinkage
+    bpy.ops.transform.translate(value=(0, 0, sinkage))
+
+    # Calculate the new bounding box of the transformed hull    
+    bpy.ops.object.transform_apply(location=True, rotation=True, scale=True) # Apply transformations to update the geometry
+    obj.data.update() # Update the object's data # optional
+
+    bbox = obj.bound_box
+    print(f"Bounding Box Min: {bbox[0][0]:.4f}, {bbox[0][1]:.4f}, {bbox[0][2]:.4f}")
+    print(f"Bounding Box Max: {bbox[6][0]:.4f}, {bbox[6][1]:.4f}, {bbox[6][2]:.4f}")
+    # Write bounds to file
+    with open('hullBounds.txt', 'w') as f:
+        f.write(f"hullXmin  {bbox[0][0]:.4f};\n")
+        f.write(f"hullXmax  {bbox[6][0]:.4f};\n")
+        f.write(f"hullYmin  {bbox[0][1]:.4f};\n")
+        f.write(f"hullYmax  {0.0};\n") # Assuming the hull is symmetric about Y-axis
+        f.write(f"hullZmin  {bbox[0][2]:.4f};\n")
+        f.write(f"hullZmax  {bbox[6][2]:.4f};\n")
+        f.write(f"zWL       {draft:.4f};\n")
+    print(f"Results written to hullBounds.txt after rotation and translation")
+
+
+    # Export the modified object as an STL file
+    bpy.ops.wm.stl_export(filepath="hull.stl")
+
+    print(f"Results written to hull.stl")
+
+
 if __name__ == "__main__":
     # Argument parser for input arguments
     parser = argparse.ArgumentParser(description="Calculate hull properties")
     parser.add_argument("stl_filepath", type=str, help="Path to the STL file")
     parser.add_argument("--draft", type=float, required=True, help="Draft of the hull")
     parser.add_argument("--rho_water", type=float, default=1000, help="Density of water in kg/m^3")
+    parser.add_argument("--trim_angle", type=float, default=0, help="Trim angle in degrees")
+    parser.add_argument("--sinkage", type=float, default=0, help="Sinkage in meters")
+    parser.add_argument("--CoG", type=float, default=None, nargs=3, help="Center of Gravity (CoG) in metre")
 
     args = parser.parse_args()
 
-    calculate_hull_properties(args.stl_filepath, args.draft, args.rho_water)
+    CoG = calculate_hull_properties(args.stl_filepath, args.draft, args.rho_water)
+    if args.CoG is not None:
+        CoG = args.CoG
+    rotate_and_translate(args.stl_filepath, args.draft, CoG, args.trim_angle, args.sinkage)
+
+# Usage: python3 blenderHullProperties.py hullDTC.stl --draft 0.244 --rho_water 1000 --trim_angle 0 --sinkage 0 --CoG 0.586 0 0.156
 
 

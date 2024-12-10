@@ -9,18 +9,8 @@ export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
 # create foam file for Paraview
 touch case.foam
 #------------------------------------------------------------------------------#
-# Create variables
-hull="w3.stl" # preprocessed watertight solid hull
-draft=0.065 # 0.0928 for ori
-rho_water=997
 
-# python3 blenderHullProperties.py hullDTC.stl --draft 0.244 --rho_water 1000
-python3 blenderHullProperties.py $hull --draft $draft --rho_water $rho_water
-#------------------------------------------------------------------------------#
-
-# copy DTC hull STL to triSurface folder
-mkdir -p constant/triSurface
-cp $hull constant/triSurface/hull.stl
+./AllrunGeo
 
 # Generate hull.eMesh file (edge features)
 runApplication surfaceFeatureExtract
