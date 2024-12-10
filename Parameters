@@ -29,9 +29,9 @@ time1     0.10;   maxCo1  10;     maxAlphaCo1     5;     deltaT1     0.0002;
 time2     0.50;   maxCo2  15;     maxAlphaCo2     10;    deltaT2     0.0005;
 time3     1.00;   maxCo3  25;     maxAlphaCo3     15;    deltaT3     0.0010;
 
-deltaT          $deltaT2; // for manual time step
-maxCo           $maxCo2;          // max Courant No.
-maxAlphaCo      $maxAlphaCo2;     // max Interface Courant No.
+deltaT          $deltaT0; // for manual time step
+maxCo           $maxCo0;          // max Courant No.
+maxAlphaCo      $maxAlphaCo0;     // max Interface Courant No.
 maxDeltaT       0.002; // DTC: 0.01
 
 //*********************** RUNTIME CONTROL, STOPPING CRITERIA *********************** //

@@ -1,24 +1,29 @@
 #!/bin/sh
 cd "${0%/*}" || exit                                # Run from this directory
-. ${WM_PROJECT_DIR:?}/bin/tools/RunFunctions        # Tutorial run functions
 
 # Create variables
-# hull="w3_orig.stl" # preprocessed watertight solid hull
-# draft=0.108 # 0.0928 for ori
-# rho_water=997
-# pre_trim_angle=3.485 # [deg] positive angle --> bow up
-# pre_sinkage=0.045 # [m] model scale sinkage -ve --> sinkage (downward)
+hull="w3_orig.stl" # preprocessed watertight solid hull
+draft=0.108 # 0.0928 for ori
+rho_water=997
+pre_trim_angle=3.485 # [deg] positive angle --> bow up
+pre_sinkage=0.045 # [m] model scale sinkage -ve --> sinkage (downward)
 
-hull="hullDTC.stl" # preprocessed watertight solid hull
-draft=0.244 # 0.0928 for ori
-rho_water=998
-pre_trim_angle=0 # [deg] positive angle --> bow up
-pre_sinkage=0 # [m] model scale sinkage -ve --> sinkage (downward)
+# hull="hullDTC.stl" # preprocessed watertight solid hull
+# draft=0.244 
+# rho_water=998
+
+# hull="kcs_SB.stl" # preprocessed watertight solid hull
+# draft=0.3418 
+# rho_water=998
+
+# hull="hull_surface.stl" # preprocessed watertight solid hull
+# draft=100 
+# rho_water=998
 
 # python3 blenderHullProperties.py hullDTC.stl --draft 0.244 --rho_water 1000
-python3 blenderHullProperties.py $hull --draft $draft --rho_water $rho_water
+# python3 blenderHullProperties.py $hull --draft $draft --rho_water $rho_water
 # python3 blenderHullProperties.py $hull --draft $draft --rho_water $rho_water --trim_angle $pre_trim_angle --sinkage $pre_sinkage
-# python3 blenderHullProperties.py $hull --draft $draft --rho_water $rho_water --trim_angle $pre_trim_angle --sinkage $pre_sinkage --CoG 0.586 0 0.156
+python3 blenderHullProperties.py $hull --draft $draft --rho_water $rho_water --trim_angle $pre_trim_angle --sinkage $pre_sinkage --CoG 0.586 0 0.156
 # Copy hull surface from resources folder
 mkdir -p constant/triSurface
 cp hull.stl constant/triSurface/

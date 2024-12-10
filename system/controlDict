@@ -70,7 +70,7 @@ functions
     // rigidBodyState
     // {
     //     type           rigidBodyState;
-    //     libs           ("librigidBodyState.so"); // lib not found
+    //     libs           ("librigidBodyState.so"); // lib not found in ESI version
     //     patches        (hull);
     //     angleFormat    degrees;
     // }
@@ -114,52 +114,52 @@ functions
 // the momentum initial residual exceeds 0.9 (used as a divergence indicator), or
 // number of the momentum solver iterations exceeds 100 (used as a divergence indicator), or
 // if the average drag coefficient remains within a 0.001 range over a window of 20 steps and the maximum momentum equation residual falls below 1e-4
-runTimeControl1
-{
-    type            runTimeControl;
-    libs            ("libutilityFunctionObjects.so");
-    conditions
-    {
-        condition0
-        {
-            para {#include        "../Parameters"}
-            type            equationInitialResidual;
-            fields          (U);
-            value           $para/maxInitialMomentumResidual;
-            mode            maximum;
-        }
-        // OR
-        condition1
-        {
-            para {#include        "../Parameters"}
-            type            equationMaxIterCondition;
-            fields          (U);
-            threshold       $para/maxMomentumIter;
-        }
-        // OR
+// runTimeControl1
+// {
+//     type            runTimeControl;
+//     libs            ("libutilityFunctionObjects.so");
+//     conditions
+//     {
+//         condition0
+//         {
+//             para {#include        "../Parameters"}
+//             type            equationInitialResidual;
+//             fields          (U);
+//             value           $para/maxInitialMomentumResidual;
+//             mode            maximum;
+//         }
+//         // OR
+//         condition1
+//         {
+//             para {#include        "../Parameters"}
+//             type            equationMaxIterCondition;
+//             fields          (U);
+//             threshold       $para/maxMomentumIter;
+//         }
+//         // OR
 
-        // Group 1
-        condition2
-        {
-            para {#include        "../Parameters"}
-            type            average;
-            functionObject  forceCoeffs1;
-            fields          (Cd);
-            tolerance       $para/dragCoeffRange;
-            window          $para/dragCoeffWindow;
-            groupID         1; // same groupID means the conditions are checked together (AND)
-        }
-        // AND
-        condition3
-        {
-            para {#include        "../Parameters"}
-            type            equationInitialResidual;
-            fields          (U);
-            value           $para/minMomentumResidual;
-            mode            minimum;
-            groupID         1;
-        }
-    }
-}
+//         // Group 1
+//         condition2
+//         {
+//             para {#include        "../Parameters"}
+//             type            average;
+//             functionObject  forceCoeffs1;
+//             fields          (Cd);
+//             tolerance       $para/dragCoeffRange;
+//             window          $para/dragCoeffWindow;
+//             groupID         1; // same groupID means the conditions are checked together (AND)
+//         }
+//         // AND
+//         condition3
+//         {
+//             para {#include        "../Parameters"}
+//             type            equationInitialResidual;
+//             fields          (U);
+//             value           $para/minMomentumResidual;
+//             mode            minimum;
+//             groupID         1;
+//         }
+//     }
+// }
 
 // ************************************************************************* //
